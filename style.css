@@ -1,0 +1,1399 @@
+/* =========================================================
+   THE SECOND CRADLE
+   定位原则：
+   - 外层盒子负责定位（可用 transform 居中）
+   - 内层 __inner 元素才是 GSAP 动画目标
+   - 两者永不冲突
+   ========================================================= */
+
+/* =========================================================
+   @font-face 本地字体注册
+   文件位于 fonts/ 目录，三套字体全部本地加载
+   ========================================================= */
+@font-face {
+    font-family: "Swis721 Blk BT";
+    src: url("fonts/Swis721 Blk BT Black.ttf") format("truetype");
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: "SimHeiLocal";
+    src: url("fonts/simhei.ttf") format("truetype");
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: "LCuboidBlack";
+    src: url("fonts/字小魂立方黑(商用需授权).ttf") format("truetype");
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+:root {
+    /* Palette */
+    --cyan:        #25f4ee;
+    --cyan-soft:   #7bf9f4;
+    --cyan-bright: #b7fffb;
+    --ink:         #eaf6ff;
+    --ink-dim:     rgba(234, 246, 255, 0.72);
+
+    /* Typography */
+    --font-display: "Orbitron", system-ui, sans-serif;
+    --font-mono:    "Share Tech Mono", ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace;
+    --font-black:   "Swis721 Blk BT", "Arial Black", Impact, sans-serif;   /* 英文大黑 */
+    --font-cn-black:"SimHeiLocal", "SimHei", "Microsoft YaHei", sans-serif;/* 中文黑体 */
+    --font-cube:    "LCuboidBlack", "SimHei", "Microsoft YaHei", sans-serif;/* L立方黑 */
+
+    /* Type scale · 1920 设计稿基准 */
+    --fs-brand-title: clamp(1.0625rem, 1.25vw, 1.5rem);
+    --fs-brand-sub:   clamp(0.6875rem, 0.72vw, 0.8125rem);
+    --fs-tagline:     clamp(0.75rem,   0.82vw, 0.9375rem);
+    --fs-id:          clamp(0.8125rem, 0.95vw, 1.125rem);
+    --fs-hero:        clamp(2.5rem,    6vw,    6.5rem);
+    --fs-hint:        clamp(0.75rem,   0.82vw, 0.9375rem);
+    --fs-hud:         clamp(0.6875rem, 0.78vw, 0.9375rem);
+    --fs-annotation:  clamp(0.75rem,   0.85vw, 0.9375rem);
+}
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: 16px;
+    font-weight: 400;
+    overflow: hidden;
+    letter-spacing: 0.02em;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+img {
+    display: block;
+    max-width: 100%;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+button { font: inherit; }
+
+/* ----------  背景层  ---------- */
+.scene {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    isolation: isolate;
+}
+
+.nebula {
+    position: absolute;
+    inset: -4%;
+    background: url("images/bg-nebula.png") center/cover no-repeat, #000;
+    z-index: -3;
+    animation: nebula-breath 12s ease-in-out infinite;
+    transform-origin: center;
+    will-change: transform, filter;
+}
+@keyframes nebula-breath {
+    0%, 100% { transform: scale(1);     filter: brightness(0.95) saturate(1); }
+    50%      { transform: scale(1.035); filter: brightness(1.08) saturate(1.12); }
+}
+
+.vignette {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+    background:
+        radial-gradient(ellipse at center,
+            transparent 35%,
+            rgba(0, 0, 0, 0.55) 80%,
+            rgba(0, 0, 0, 0.9)  100%),
+        linear-gradient(to bottom,
+            rgba(0, 0, 0, 0.25) 0%,
+            transparent 30%,
+            transparent 70%,
+            rgba(0, 0, 0, 0.4)  100%);
+}
+
+.scanlines {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 6;
+    background: repeating-linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.015) 0,
+        rgba(255, 255, 255, 0.015) 1px,
+        transparent 1px,
+        transparent 3px);
+    mix-blend-mode: overlay;
+}
+
+/* ================================================================
+   A. 固定玻璃层：brand / tagline / coord-box · position: fixed
+   GSAP 切换动画不会去碰它们
+   ================================================================ */
+
+.brand {
+    position: fixed;
+    top: 2rem;
+    left: 2.2rem;
+    z-index: 10;
+    pointer-events: none;
+}
+.brand__title {
+    font-family: var(--font-black);
+    font-weight: 900;
+    font-size: var(--fs-brand-title);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin: 0;
+    color: #fff;
+    text-shadow: 0 0 12px rgba(255, 255, 255, 0.25);
+}
+.brand__subtitle {
+    font-family: var(--font-cn-black); /* SimHeiLocal → simhei.ttf */
+    font-weight: 900;
+    margin: 0.3rem 0 0;
+    font-size: var(--fs-brand-sub);
+    letter-spacing: 1.87em;            /* 微调让「第二摇篮」两端与上行对齐 */
+    color: rgba(255, 255, 255, 0.92);
+}
+
+.tagline {
+    position: fixed;
+    top: 10rem;
+    right: 2.2rem;
+    z-index: 10;
+    font-family: var(--font-cn-black); /* 中文提示 → simhei.ttf */
+    font-size:12px;
+    color: var(--ink);
+    letter-spacing: 0.32em;
+    text-shadow: 0 0 10px rgba(37, 244, 238, 0.35);
+    pointer-events: none;
+}
+
+.coord-box {
+    position: fixed;
+    left: 8%;
+    top: 50%;                    /* 顶部与 .annotation 顶部同线，无 transform */
+    width: clamp(270px, 24vw, 650px);
+    z-index: 10;
+    pointer-events: none;
+}
+.coord-box__frame {
+    width: 80%;
+    height: 300%;
+    display: block;
+    opacity: 0.5;        /* 在这里直接调透明度，0.5 就是半透明 */
+    object-fit: contain;
+    filter: brightness(0.8); /* 稍微调亮一点，否则太暗看不清 */
+}
+.coord-box__data {
+    position: absolute;
+    inset: 0;
+    list-style: none;
+    margin: 0;
+    padding: clamp(0.85rem, 1.3vw, 1.3rem) clamp(1rem, 1.6vw, 1.6rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.3rem;
+    font-family: var(--font-cube);     /* LCuboidBlack → 字小魂立方黑.ttf */
+    font-size:11.5px;
+    font-variant-numeric: tabular-nums;
+    color: rgba(227, 224, 224, 0.33);
+    letter-spacing: 0.1em;
+    line-height: 1.52;
+    background: none !important;
+}
+.coord-box__data li span { color: rgba(71, 246, 255, 0.33); }
+
+/* ================================================================
+   B. 中央星球 · 强制锁死屏幕正中心
+   transform: translate(-50%, -50%) 在外层，GSAP 只动内部 slot
+   ================================================================ */
+.planet-stage {
+    position: absolute;
+    top: 93%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin-top: 50px;
+    width: min(85vw, 85vh);
+    aspect-ratio: 1 / 1;
+    z-index: 2;
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+.planet__glow {
+    position: absolute;
+    inset: -14%;
+    border-radius: 50%;
+    background: radial-gradient(circle at center,
+        rgba(37, 244, 238, 0.35) 0%,
+        rgba(37, 244, 238, 0.15) 35%,
+        rgba(37, 244, 238, 0.05) 55%,
+        transparent 70%);
+    filter: blur(24px);
+    animation: glow-pulse 6s ease-in-out infinite;
+    z-index: 0;
+    pointer-events: none;
+    will-change: opacity, transform;
+}
+@keyframes glow-pulse {
+    0%, 100% { opacity: 0.85; transform: scale(1); }
+    50%      { opacity: 1;    transform: scale(1.05); }
+}
+
+/* 双槽位 · GSAP 的唯一画布 */
+.planet__slot {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    z-index: 1;
+    will-change: transform, opacity, filter;
+    transform-origin: center center;
+    pointer-events: none;
+}
+.planet__slot.is-active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.planet__img,
+.planet__body {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    filter: drop-shadow(0 0 40px rgba(255, 255, 255, 0.473));
+    animation: planet-spin 60s linear infinite;
+    will-change: transform, filter;
+    backface-visibility: hidden;  /* 硬件加速，消除旋转重绘抖动 */
+    transform-style: preserve-3d;
+}
+@keyframes planet-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+/* ================================================================
+   C. 两侧邻星 · 绝对定位贴屏幕左右下角
+   ================================================================ */
+.side-planet {
+    position: absolute;
+    z-index: 1;
+    pointer-events: none;
+    aspect-ratio: 1 / 1;
+    will-change: transform, opacity, filter;
+    backface-visibility: hidden; /* 硬件加速 */
+}
+.side-planet img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    animation: planet-spin 50s linear infinite;
+    will-change: transform, filter;
+    backface-visibility: hidden;  /* 硬件加速，消除旋转重绘抖动 */
+    transform-style: preserve-3d;
+}
+.side-planet--left {
+    left: -8%;
+    bottom: -8%;
+    width: clamp(170px, 19vw, 300px);
+}
+.side-planet--right {
+    right: -8%;
+    bottom: -8%;
+    width: clamp(170px, 19vw, 300px);
+}
+
+/* ================================================================
+   D. 标题（星球正上方）· 外层定位 + 内层动画
+   ================================================================ */
+.headline {
+    position: absolute;
+    top: 15%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(94vw, 1320px);
+    text-align: center;
+    z-index: 500;
+    pointer-events: none;
+}
+.headline__inner {
+    will-change: transform, opacity, filter;
+}
+
+.headline__id {
+    margin: 0 0 0.55rem;
+    font-family: var(--font-black);
+    font-weight: 900;
+    font-size: 19px;
+    letter-spacing: 0.58em;
+    line-height: 1;
+    color: #757777;
+}
+.headline__id-label { color: #757777; opacity: 1; margin-right: 0.6em; }
+.headline__id-value { color: #757777; letter-spacing: 0.55em; }
+
+.headline__title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--fs-hero);
+    letter-spacing: 0.2em;
+    line-height: 1.02;
+    text-transform: uppercase;
+    margin: 0;
+    color: var(--cyan);
+}
+.headline__hint {
+    margin: 1.4rem 0 0;                /* [Reality Checker] 与主标题保持呼吸感 */
+    font-family: var(--font-cn-black); /* simhei.ttf */
+    font-style: italic;                /* [Frontend-design] 整行斜体 */
+    font-size: 10px;
+    color:rgba(250, 254, 254, 0.543);;
+    letter-spacing: 0.12em;
+}
+/* [Whimsy Injector] 关键词高亮 · 青色 + 取消斜体以形成对比 */
+.headline__hint span {
+    color: rgba(37, 244, 237, 0.422);
+    font-size: 12px;
+    font-style: italic;
+}
+
+/* ================================================================
+   E. 右侧说明 · 线吸附文字左侧（right: 100% 磁铁原理）
+   ================================================================ */
+.annotation {
+    position: fixed;
+    right: 3%;           /* 距离右边 5% */
+    top: 50%;            /* 垂直位置 */
+    width: 18%;          /* 占据屏幕宽度的 25%，你可以根据感觉微调这个百分比 */
+    z-index: 10;
+}
+
+
+.annotation__text p + p {
+    margin-top: 12px  /* 两个段落之间的间距 */
+}
+.annotation__inner {
+    position: relative;  /* annotation__line 的 containing block */
+    width: 100%;
+    min-height: 160px;   /* 防止极短文字时容器塌缩，保证线有足够参考高度 */
+    will-change: transform, opacity, filter;
+}
+.annotation__line {
+    position: absolute;
+    right: 100%;               /* 右边紧贴文字左边 */
+    top: 85%;                  /* 永远等于容器（即文字块）的垂直正中心 */
+    transform: translateY(-50%);
+    align-self: center;        /* flex 子项自我居中兜底 */
+    width: clamp(150px, 14vw, 220px);
+    height: auto;
+    opacity: 0.95;
+    filter: drop-shadow(0 0 6px rgba(37, 244, 237, 0.395));
+    pointer-events: none;
+}
+
+.annotation__text {
+    margin: 0;
+    width: 100%;
+    font-family: var(--font-cn-black);  /* LCuboidBlack → 字小魂立方黑.ttf */
+    font-weight: 900;
+    font-size: 14px;
+    color: rgba(234, 246, 255, 0.7);
+    line-height: 1.7;
+    letter-spacing: 0.02em;
+    text-align: justify;
+    text-shadow: 0 0 6px rgba(235, 255, 254, 0.151);
+    white-space: normal;      /* 允许正常换行 */
+    word-break: normal;     /* 重点：不准在中文单词中间断开 */
+    text-align: left;         /* 或者 justify，让右侧对齐 */
+    width: 100%;              /* 确保占满父容器 */
+    max-width: 20em;          /* 【关键】限制每一行大约能装下的字符数 */
+}
+/* 两段式排版：annotation 字符串用 </p><p> 分段，控制间距 */
+.annotation__text p {
+    margin: 0;
+    line-height: 1.8;
+}
+.annotation__text b {
+    color: var(--cyan-bright);
+    font-weight: 900;
+    text-shadow: 0 0 10px rgba(37, 244, 238, 0.95);
+}
+
+/* ================================================================
+   F. 左右箭头
+   ================================================================ */
+.nav-btn {
+    position: fixed;
+    top: 80%;
+    margin-top: -40px;      /* 垂直定位完全由 top + margin-top 决定，无需 transform */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    visibility: visible;
+    opacity: 1;
+    width: clamp(68px, 5vw, 80px);
+    height: clamp(68px, 5vw, 80px);
+    padding: 0;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 9999;
+    transition: transform 0.3s ease, filter 0.3s ease;
+    filter: drop-shadow(0 0 1px rgba(37, 244, 238, 0.1));
+}
+.nav-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: filter 0.3s ease;
+}
+.nav-btn:hover {
+    transform: scale(1.9);  /* 只放大，无 translateY，严禁位置跳动 */
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
+}
+.nav-btn:active { transform: scale(0.95); }
+.nav-btn--prev { left: 18%; }
+.nav-btn--next { right: 18%; }
+
+/* ================================================================
+   响应式
+   ================================================================ */
+@media (max-width: 1280px) {
+    .nav-btn--prev { left: 5%; }
+    .nav-btn--next { right: 5%; }
+}
+
+@media (max-width: 1024px) {
+    .brand    { top: 1.3rem; left: 1.3rem; }
+    .tagline  { top: 5.2rem; right: 1.3rem; }
+    .coord-box{ left: 1.3rem; width: 30vw; top: 43%; }
+    .annotation { right: 1.3rem; width: 28vw; top: 18%; }
+    .annotation__line { width: 12vw; }
+    .nav-btn--prev { left: 5%; }
+    .nav-btn--next { right: 5%; }
+}
+
+@media (max-width: 640px) {
+    .headline__title {
+        font-size: clamp(1.875rem, 10.5vw, 3.125rem);
+        letter-spacing: 0.14em;
+    }
+    .headline__id       { letter-spacing: 0.35em; }
+    .headline__id-value { letter-spacing: 0.35em; }
+    .coord-box   { width: 50vw; top: auto; bottom: 24%; }
+    .annotation  { width: 50vw; top: auto; bottom: 24%; transform: none; }
+    .annotation__line { display: none; }
+    .side-planet--left  { width: 26vw; }
+    .side-planet--right { width: 28vw; }
+    .nav-btn          { top: 80%; margin-top: -40px; }  /* 与基础样式保持一致 */
+    .nav-btn:hover    { transform: scale(1.3); }
+    .nav-btn:active   { transform: scale(0.95); }
+    .nav-btn--prev    { left: 5%; }
+    .nav-btn--next    { right: 5%; }
+}
+
+/* ================================================================
+   G. 星球点击涟漪（Whimsy Injector）
+   ================================================================ */
+.planet__ripple {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid rgba(37, 244, 238, 0.7);
+    pointer-events: none;
+    z-index: 5;
+    will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .planet__body,
+    .nebula,
+    .planet__glow { animation: none !important; }
+}
+
+/* ================================================================
+   H. 单页叙事 · level-2 / level-3（不改动上方既有布局规则）
+   ================================================================ */
+.narrative-level {
+    position: fixed;
+    inset: 0;
+    z-index: 8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    box-sizing: border-box;
+    opacity: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse 80% 60% at 50% 50%, rgba(4, 12, 20, 0.72) 0%, rgba(0, 0, 0, 0.45) 55%, transparent 100%);
+}
+.narrative-level:not([hidden]) {
+    pointer-events: auto;
+}
+.narrative-level__inner {
+    max-width: 42rem;
+    text-align: center;
+    font-family: var(--font-mono);
+    color: var(--ink-dim);
+}
+.narrative-level__title {
+    font-family: var(--font-display);
+    font-size: clamp(1.25rem, 3vw, 2rem);
+    color: var(--cyan-bright);
+    letter-spacing: 0.2em;
+    margin: 0 0 0.75rem;
+}
+.narrative-level__lead {
+    margin: 0;
+    font-size: var(--fs-hud);
+    line-height: 1.6;
+}
+.planet-stage.is-level2-anchor {
+    z-index: 18;
+    pointer-events: none !important;
+}
+.planet-stage.is-level2-anchor * {
+    pointer-events: none !important;
+}
+.migrate-cta {
+    position: fixed;
+    bottom: 10%;
+    left: 50%;
+    translate: -50% 0;
+    z-index: 10000;
+    padding: 0.55rem 1.25rem;
+    font-family: var(--font-cn-black);
+    font-size: var(--fs-hint);
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--ink);
+    background: rgba(4, 18, 28, 0.65);
+    border: 1px solid rgba(37, 244, 238, 0.45);
+    border-radius: 4px;
+    cursor: pointer;
+    box-shadow: 0 0 18px rgba(37, 244, 238, 0.2);
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+.migrate-cta:hover {
+    border-color: var(--cyan);
+    box-shadow: 0 0 24px rgba(37, 244, 238, 0.4);
+}
+
+/* ================================================================
+   J. Mindloop 落地页 — 仅 #level-2（Design System + 7 Sections）
+   ================================================================ */
+#level-2.ml2.narrative-level {
+    /* 纯黑长页底 + Mindloop tokens */
+    /* Design System（HSL 数值，配合 hsl(var(--token))） */
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 5%;
+    --card-foreground: 0 0% 100%;
+    --primary: 0 0% 100%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 85%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 65%;
+    --accent: 170 15% 45%;
+    --accent-foreground: 0 0% 100%;
+    --border: 0 0% 20%;
+    --input: 0 0% 18%;
+    --ring: 0 0% 40%;
+    --hero-subtitle: 210 17% 95%;
+
+    display: block;
+    padding: 0;
+    align-items: stretch;
+    justify-content: flex-start;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    height: 100%;
+    height: 100vh;
+    max-height: 100vh;
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
+    color: hsl(var(--foreground));
+    background: #000000;
+    text-align: left;
+}
+
+#level-2 .liquid-glass {
+    background: rgba(255, 255, 255, 0.01);
+    background-blend-mode: luminosity;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: none;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+#level-2 .liquid-glass::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.4px;
+    background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.45) 0%,
+        rgba(255, 255, 255, 0.15) 20%,
+        rgba(255, 255, 255, 0) 40%,
+        rgba(255, 255, 255, 0) 60%,
+        rgba(255, 255, 255, 0.15) 80%,
+        rgba(255, 255, 255, 0.45) 100%
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+}
+
+/* 固定双行顶栏：← BACK + 星球 | Mindloop 主导航（GSAP 整体位移） */
+#level-2 .ml2-chrome {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    box-sizing: border-box;
+    background: transparent;
+}
+
+#level-2 .ml2-global-nav {
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: minmax(0, auto) 1fr minmax(0, auto);
+    align-items: center;
+    gap: 0.75rem 1rem;
+    padding: 0.65rem 2rem;
+    padding-top: calc(0.65rem + env(safe-area-inset-top, 0px));
+    color: hsl(var(--foreground));
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+}
+
+@media (min-width: 768px) {
+    #level-2 .ml2-global-nav {
+        padding-left: 7rem;
+        padding-right: 7rem;
+        font-size: 0.875rem;
+    }
+}
+
+#level-2 .ml2-app-header {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 2rem;
+    background: transparent;
+}
+
+@media (min-width: 768px) {
+    #level-2 .ml2-app-header {
+        padding: 1rem 7rem;
+    }
+}
+
+#level-2 .ml2-app-header__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    text-decoration: none;
+    color: hsl(var(--foreground));
+}
+
+#level-2 .ml2-app-header__logo {
+    position: relative;
+    width: 1.75rem;
+    height: 1.75rem;
+    flex-shrink: 0;
+}
+
+#level-2 .ml2-app-header__logo-outer {
+    position: absolute;
+    inset: 0;
+    border: 2px solid hsl(var(--foreground) / 0.6);
+    border-radius: 50%;
+}
+
+#level-2 .ml2-app-header__logo-inner {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 0.75rem;
+    height: 0.75rem;
+    margin: -0.375rem 0 0 -0.375rem;
+    border: 1px solid hsl(var(--foreground) / 0.6);
+    border-radius: 50%;
+}
+
+#level-2 .ml2-app-header__title {
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: -0.02em;
+}
+
+#level-2 .ml2-app-header__links {
+    display: none;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.875rem;
+}
+
+@media (min-width: 900px) {
+    #level-2 .ml2-app-header__links {
+        display: flex;
+    }
+}
+
+#level-2 .ml2-app-header__links a {
+    color: hsl(var(--muted-foreground));
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+#level-2 .ml2-app-header__links a:hover {
+    color: hsl(var(--foreground));
+}
+
+#level-2 .ml2-app-header__dot {
+    color: hsl(var(--muted-foreground));
+    user-select: none;
+    padding: 0 0.15rem;
+}
+
+#level-2 .ml2-app-header__social {
+    display: flex;
+    gap: 0.5rem;
+}
+
+#level-2 .ml2-social-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: hsl(var(--foreground));
+    text-decoration: none;
+}
+
+#level-2 .ml2-scroll {
+    width: 100%;
+    min-height: 100%;
+    position: relative;
+    padding-top: 7.25rem;
+    box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+    #level-2 .ml2-scroll {
+        padding-top: 8rem;
+    }
+}
+
+#level-2 .ml2-global-nav__back {
+    appearance: none;
+    margin: 0;
+    padding: 0.4rem 0.65rem;
+    border: none;
+    background: transparent;
+    color: hsl(var(--foreground));
+    font: inherit;
+    cursor: pointer;
+    text-align: left;
+    white-space: nowrap;
+    opacity: 0.95;
+    border-radius: 0.5rem;
+}
+
+#level-2 .ml2-global-nav__back:hover {
+    opacity: 1;
+}
+
+#level-2 .ml2-global-nav__planets {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem 0.35rem;
+}
+
+#level-2 .ml2-global-nav__sep {
+    color: rgba(255, 255, 255, 0.45);
+    user-select: none;
+    padding: 0 0.1rem;
+    font-size: 0.75rem;
+}
+
+#level-2 .ml2-global-nav__planet {
+    appearance: none;
+    margin: 0;
+    padding: 0.35rem 0.4rem;
+    border: none;
+    background: transparent;
+    color: hsl(var(--foreground));
+    font: inherit;
+    cursor: pointer;
+    opacity: 0.5;
+    white-space: nowrap;
+    border-radius: 0.35rem;
+}
+
+#level-2 .ml2-global-nav__planet.is-active {
+    opacity: 1;
+}
+
+#level-2 .ml2-global-nav__planet:hover {
+    opacity: 1;
+}
+
+#level-2 .ml2-global-nav__spacer {
+    min-width: 5.5rem;
+    pointer-events: none;
+}
+
+/* —— Section 2 Hero —— */
+#level-2 .ml2-hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 4rem 2rem 4rem;
+    background: #000000;
+}
+
+@media (min-width: 768px) {
+    #level-2 .ml2-hero {
+        padding: 4.5rem 7rem 5rem;
+    }
+}
+
+#level-2 .ml2-hero__video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+}
+
+#level-2 .ml2-hero__gradient {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 16rem;
+    background: linear-gradient(to top, #000000 0%, transparent 100%);
+    z-index: 2;
+    pointer-events: none;
+}
+
+#level-2 .ml2-hero__inner {
+    position: relative;
+    z-index: 10;
+    max-width: 56rem;
+    width: 100%;
+    text-align: center;
+    padding-top: 7rem;
+}
+
+@media (min-width: 768px) {
+    #level-2 .ml2-hero__inner {
+        padding-top: 8rem;
+    }
+}
+
+#level-2 .ml2-hero__avatars {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+}
+
+#level-2 .ml2-avatar {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    border: 2px solid hsl(var(--background));
+    margin-left: -0.5rem;
+    background: hsl(var(--muted));
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.55rem;
+    color: hsl(var(--muted-foreground));
+}
+
+#level-2 .ml2-avatar:first-child {
+    margin-left: 0;
+}
+
+#level-2 .ml2-hero__avatar-caption {
+    font-size: 0.875rem;
+    color: hsl(var(--muted-foreground));
+    margin-left: 0.5rem;
+}
+
+/* text-5xl / md:text-7xl / lg:text-8xl + tracking-[-2px] */
+#level-2 .ml2-hero__heading {
+    font-size: 3rem;
+    font-weight: 500;
+    letter-spacing: -2px;
+    line-height: 1.05;
+    margin: 0 0 1rem;
+}
+
+@media (min-width: 768px) {
+    #level-2 .ml2-hero__heading {
+        font-size: 4.5rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    #level-2 .ml2-hero__heading {
+        font-size: 6rem;
+    }
+}
+
+#level-2 .ml2-serif {
+    font-family: "Instrument Serif", Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+}
+
+#level-2 .ml2-hero__sub {
+    font-size: 1.125rem;
+    line-height: 1.6;
+    color: hsl(var(--hero-subtitle));
+    max-width: 36rem;
+    margin: 0 auto;
+}
+
+/* —— Section 3 Search —— */
+#level-2 .ml2-search {
+    padding: 13rem 2rem 1.5rem;
+    border-bottom: 1px solid hsl(var(--border) / 0.3);
+    background: #000000;
+}
+
+@media (min-width: 768px) {
+    #level-2 .ml2-search {
+        padding: 16rem 7rem 2.25rem;
+    }
+}
+
+/* text-5xl / md:text-7xl / lg:text-8xl */
+#level-2 .ml2-search__heading {
+    font-size: 3rem;
+    font-weight: 500;
+    letter-spacing: -2px;
+    line-height: 1.08;
+    max-width: 24ch;
+    margin: 0 0 1.5rem;
+}
+
+@media (min-width: 768px) {
+    #level-2 .ml2-search__heading {
+        font-size: 4.5rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    #level-2 .ml2-search__heading {
+        font-size: 6rem;
+    }
+}
+
+#level-2 .ml2-search__sub {
+    font-size: 1.125rem;
+    color: hsl(var(--muted-foreground));
+    max-width: 42rem;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+    margin-bottom: 6rem;
+}
+
+#level-2 .ml2-search__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem;
+    margin-bottom: 5rem;
+}
+
+@media (min-width: 768px) {
+    #level-2 .ml2-search__grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+    }
+}
+
+#level-2 .ml2-card__icon {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#level-2 .ml2-card__icon-img {
+    width: 200px;
+    height: 200px;
+    object-fit: contain;
+}
+
+#level-2 .ml2-icon-fallback {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: hsl(var(--card));
+    border: 1px dashed hsl(var(--border));
+    color: hsl(var(--muted-foreground));
+    font-size: 0.7rem;
+    text-align: center;
+    padding: 0.5rem;
+    line-height: 1.3;
+}
+
+#level-2 .ml2-icon-fallback::before {
+    content: attr(data-label);
+}
+
+#level-2 .ml2-card__name {
+    font-weight: 600;
+    font-size: 1rem;
+    text-align: center;
+    margin: 0 0 0.5rem;
+}
+
+#level-2 .ml2-card__desc {
+    font-size: 0.875rem;
+    color: hsl(var(--muted-foreground));
+    text-align: center;
+    line-height: 1.55;
+    max-width: 280px;
+    margin: 0 auto;
+}
+
+#level-2 .ml2-search__tagline {
+    font-size: 0.875rem;
+    color: hsl(var(--muted-foreground));
+    text-align: center;
+    margin: 0;
+}
+
+/* —— Section 4 Mission —— */
+#level-2 .ml2-mission {
+    padding: 0 2rem 8rem;
+    background: #000000;
+}
+
+@media (min-width: 768px) {
+    #level-2 .ml2-mission {
+        padding: 0 7rem 11rem;
+    }
+}
+
+#level-2 .ml2-mission__video-wrap {
+    width: min(800px, 100%);
+    aspect-ratio: 1 / 1;
+    margin: 0 auto 2.5rem;
+    border-radius: 0;
+    overflow: hidden;
+    background: #000;
+}
+
+#level-2 .ml2-mission__video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+#level-2 .ml2-mission__body {
+    max-width: 56rem;
+    margin: 0 auto;
+}
+
+#level-2 .ml2-mission__p {
+    margin: 0;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1.35;
+}
+
+/* text-2xl / md:text-4xl / lg:text-5xl */
+#level-2 .ml2-mission__p--large {
+    font-size: 1.5rem;
+    letter-spacing: -1px;
+}
+
+@media (min-width: 768px) {
+    #level-2 .ml2-mission__p--large {
+        font-size: 2.25rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    #level-2 .ml2-mission__p--large {
+        font-size: 3rem;
+    }
+}
+
+/* text-xl / md:text-2xl / lg:text-3xl */
+#level-2 .ml2-mission__p--medium {
+    font-size: 1.25rem;
+    margin-top: 2.5rem;
+}
+
+@media (min-width: 768px) {
+    #level-2 .ml2-mission__p--medium {
+        font-size: 1.5rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    #level-2 .ml2-mission__p--medium {
+        font-size: 1.875rem;
+    }
+}
+
+#level-2 .ml2-word {
+    display: inline;
+    margin-right: 0.08em;
+    opacity: 0.15;
+    will-change: opacity;
+}
+
+#level-2 .ml2-word--muted {
+    color: hsl(var(--hero-subtitle));
+}
+
+#level-2 .ml2-word--emph {
+    color: hsl(var(--foreground));
+}
+
+/* —— Section 5 Solution —— */
+#level-2 .ml2-solution {
+    padding: 8rem 2rem;
+    border-top: 1px solid hsl(var(--border) / 0.3);
+    background: #000000;
+}
+
+@media (min-width: 768px) {
+    #level-2 .ml2-solution {
+        padding: 11rem 7rem;
+    }
+}
+
+#level-2 .ml2-solution__label {
+    font-size: 0.75rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: hsl(var(--muted-foreground));
+    margin: 0 0 1rem;
+}
+
+/* text-4xl / md:text-6xl */
+#level-2 .ml2-solution__heading {
+    font-size: 2.25rem;
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    max-width: 20ch;
+    margin: 0 0 2.5rem;
+}
+
+@media (min-width: 768px) {
+    #level-2 .ml2-solution__heading {
+        font-size: 3.75rem;
+    }
+}
+
+#level-2 .ml2-solution__video-wrap {
+    border-radius: 1rem;
+    overflow: hidden;
+    aspect-ratio: 3 / 1;
+    margin-bottom: 3rem;
+    background: #000;
+}
+
+#level-2 .ml2-solution__video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+#level-2 .ml2-solution__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+}
+
+@media (min-width: 768px) {
+    #level-2 .ml2-solution__grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 2rem;
+    }
+}
+
+#level-2 .ml2-solution__feat-title {
+    font-weight: 600;
+    font-size: 1rem;
+    margin: 0 0 0.5rem;
+}
+
+#level-2 .ml2-solution__feat-desc {
+    font-size: 0.875rem;
+    color: hsl(var(--muted-foreground));
+    line-height: 1.55;
+    margin: 0;
+}
+
+/* —— Section 6 CTA —— */
+#level-2 .ml2-cta {
+    position: relative;
+    padding: 8rem 2rem;
+    overflow: hidden;
+    border-top: 1px solid hsl(var(--border) / 0.3);
+    background: #000000;
+}
+
+@media (min-width: 768px) {
+    #level-2 .ml2-cta {
+        padding: 11rem 7rem;
+    }
+}
+
+#level-2 .ml2-cta__video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+}
+
+#level-2 .ml2-cta__overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: hsl(var(--background) / 0.45);
+    pointer-events: none;
+}
+
+#level-2 .ml2-cta__inner {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    max-width: 36rem;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+#level-2 .ml2-cta__heading {
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
+    font-style: normal;
+    font-weight: 500;
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    letter-spacing: -0.02em;
+    margin: 0;
+    color: hsl(var(--foreground));
+}
+
+#level-2 .ml2-cta__back {
+    font-size: 0.9375rem;
+    color: hsl(var(--muted-foreground));
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    cursor: pointer;
+}
+
+#level-2 .ml2-cta__back:hover {
+    color: hsl(var(--foreground));
+}
+
+/* —— Section 7 Footer —— */
+#level-2 .ml2-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 3rem 2rem;
+    border-top: 1px solid hsl(var(--border) / 0.3);
+    background: #000000;
+}
+
+@media (min-width: 768px) {
+    #level-2 .ml2-footer {
+        padding: 3rem 7rem;
+    }
+}
+
+#level-2 .ml2-footer__copy {
+    font-size: 0.875rem;
+    color: hsl(var(--muted-foreground));
+    margin: 0;
+}
+
+#level-2 .ml2-footer__links {
+    display: flex;
+    gap: 1.5rem;
+}
+
+#level-2 .ml2-footer__links a {
+    font-size: 0.875rem;
+    color: hsl(var(--muted-foreground));
+    text-decoration: none;
+}
+
+#level-2 .ml2-footer__links a:hover {
+    color: hsl(var(--foreground));
+}
+
+/* K. Level 2 styles are in src/components/level2.css (imported via src/main.jsx) */

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>THE SECOND CRADLE</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=Orbitron:wght@500;700;800;900&family=Share+Tech+Mono&display=swap"
+        rel="stylesheet"
+    />
+
+    <script>tailwind.config = { corePlugins: { preflight: false } }</script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div class="scene" id="scene">
+        <div class="nebula" aria-hidden="true"></div>
+        <div class="vignette" aria-hidden="true"></div>
+
+        <main id="level-1">
+        <!-- ========== 固定玻璃层 · 不随任何动画移动 ========== -->
+        <header class="brand">
+            <h1 class="brand__title">THE SECOND CRADLE</h1>
+            <p class="brand__subtitle">第&nbsp;&nbsp;二&nbsp;&nbsp;摇&nbsp;&nbsp;篮</p>
+        </header>
+
+        <aside class="tagline" aria-label="tagline">
+            <span class="tagline__text" id="tagline">它比地球老，像地球的未来</span>
+        </aside>
+
+        <aside class="coord-box" aria-label="coordinates">
+            <img class="coord-box__frame" src="images/ui-box.png" alt="" />
+            <ul class="coord-box__data" id="coord-data">
+                <li><span>RA</span>:&nbsp;19h 44m 00.9s (296.0037°)&nbsp;|&nbsp;赤经</li>
+                <li><span>DEC</span>: +44° 27&#39; 28&quot; (44.2776°)&nbsp;|&nbsp;赤纬</li>
+                <li><span>Constellation</span>: Cygnus（天鹅座）</li>
+                <li><span>Distance</span>: ~1400 light-years</li>
+                <li><span>Host Star</span>: Kepler-452</li>
+            </ul>
+        </aside>
+
+        <!-- ========== 中央星球 · 锁死屏幕正中心 ========== -->
+        <div class="planet-stage" id="planet-stage">
+            <div class="planet__glow" aria-hidden="true"></div>
+            <div class="planet__slot is-active" id="slot-a" data-slot="a">
+                <img class="planet__body" id="slot-a-img" src="images/KEPLER-452B.png" alt="Kepler-452b" />
+            </div>
+            <div class="planet__slot" id="slot-b" data-slot="b">
+                <img class="planet__body" id="slot-b-img" src="" alt="" />
+            </div>
+        </div>
+
+        <!-- ========== 两侧邻星 · 贴屏幕左右下角 ========== -->
+        <div class="side-planet side-planet--left" id="planet-left" aria-hidden="true">
+            <img id="planet-left-img" src="images/PROXIMA CENTAURI B.png" alt="" />
+        </div>
+        <div class="side-planet side-planet--right" id="planet-right" aria-hidden="true">
+            <img id="planet-right-img" src="images/TOI-1452 B.png" alt="" />
+        </div>
+
+        <!-- ========== 标题（星球正上方）· 外层定位 + 内层动画 ========== -->
+        <section class="headline">
+            <div class="headline__inner" id="headline-inner">
+                <p class="headline__id">
+                    <span class="headline__id-label">ID:</span>
+                    <span class="headline__id-value" id="planet-id">KEPLER-452B</span>
+                </p>
+                <h2 class="headline__title" id="planet-title">THE ELDER COUSIN</h2>
+                <p class="headline__hint">点击<span>左右箭头</span>查看其他行星，点击<span>行星</span>可进行探索</p>
+            </div>
+        </section>
+
+        <!-- ========== 右侧说明 · 线+文字同容器 · 线吸附在文字左侧 ========== -->
+        <aside class="annotation">
+            <div class="annotation__inner" id="annotation-inner">
+                <img class="annotation__line" src="images/ui_line_right.png" alt="" aria-hidden="true" />
+                <div class="annotation__text" id="annotation-text">
+                    <p>外号「地球表哥」：首颗类太阳恒星宜居带内的超级地球，与地球相似度极高。</p>
+                    <p style="margin-top:0.8rem">它已在宜居带内运行约 <b>60&nbsp;亿年</b>，宿主恒星 Kepler-452 比太阳更年长、光度更高。</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ========== 左右箭头 ========== -->
+        <button class="nav-btn nav-btn--prev" id="btn-prev" type="button" aria-label="previous planet">
+            <img src="images/Left Arrow.png" alt="" />
+        </button>
+        <button class="nav-btn nav-btn--next" id="btn-next" type="button" aria-label="next planet">
+            <img src="images/Right Arrow.png" alt="" />
+        </button>
+
+        <button type="button" class="migrate-cta" id="btn-confirm-migration">确认迁徙</button>
+        </main>
+
+        <!-- Level 2 · React component mounts here via src/main.jsx -->
+        <section id="level-2" class="narrative-level" hidden aria-hidden="true">
+        </section>
+        <section id="level-3" class="narrative-level" hidden aria-hidden="true">
+            <div class="narrative-level__inner">
+                <h2 class="narrative-level__title">第三幕</h2>
+                <p class="narrative-level__lead">预留章节。</p>
+            </div>
+        </section>
+
+        <div class="scanlines" aria-hidden="true"></div>
+    </div>
+
+    <!-- Vite + React entry (GSAP loaded via npm inside src/main.jsx) -->
+    <script type="module" src="/src/main.jsx"></script>
+</body>
+</html>

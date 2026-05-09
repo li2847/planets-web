@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>THE SECOND CRADLE</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=Orbitron:wght@500;700;800;900&family=Share+Tech+Mono&display=swap"
+        rel="stylesheet"
+    />
+
+    <script>tailwind.config = { corePlugins: { preflight: false } }</script>
+    <script src="https://cdn.tailwindcss.com"></script>
+  <script type="module" crossorigin src="/assets/index-CiXuOGuX.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-C4FhyyGM.css">
+</head>
+<body>
+    <div class="scene" id="scene">
+        <div class="nebula" aria-hidden="true"></div>
+        <div class="vignette" aria-hidden="true"></div>
+
+        <main id="level-1">
+        <!-- ========== 固定玻璃层 · 不随任何动画移动 ========== -->
+        <header class="brand">
+            <h1 class="brand__title">THE SECOND CRADLE</h1>
+            <p class="brand__subtitle">第&nbsp;&nbsp;二&nbsp;&nbsp;摇&nbsp;&nbsp;篮</p>
+        </header>
+
+        <aside class="tagline" aria-label="tagline">
+            <span class="tagline__text" id="tagline">它比地球老，像地球的未来</span>
+        </aside>
+
+        <aside class="coord-box" aria-label="coordinates">
+            <img class="coord-box__frame" src="/assets/ui-box-BARGJ5Z_.png" alt="" />
+            <ul class="coord-box__data" id="coord-data">
+                <li><span>RA</span>:&nbsp;19h 44m 00.9s (296.0037°)&nbsp;|&nbsp;赤经</li>
+                <li><span>DEC</span>: +44° 27&#39; 28&quot; (44.2776°)&nbsp;|&nbsp;赤纬</li>
+                <li><span>Constellation</span>: Cygnus（天鹅座）</li>
+                <li><span>Distance</span>: ~1400 light-years</li>
+                <li><span>Host Star</span>: Kepler-452</li>
+            </ul>
+        </aside>
+
+        <!-- ========== 中央星球 · 锁死屏幕正中心 ========== -->
+        <div class="planet-stage" id="planet-stage">
+            <div class="planet__glow" aria-hidden="true"></div>
+            <div class="planet__slot is-active" id="slot-a" data-slot="a">
+                <img class="planet__body" id="slot-a-img" src="/assets/KEPLER-452B-DXqKAZMo.png" alt="Kepler-452b" />
+            </div>
+            <div class="planet__slot" id="slot-b" data-slot="b">
+                <img class="planet__body" id="slot-b-img" src="" alt="" />
+            </div>
+        </div>
+
+        <!-- ========== 两侧邻星 · 贴屏幕左右下角 ========== -->
+        <div class="side-planet side-planet--left" id="planet-left" aria-hidden="true">
+            <img id="planet-left-img" src="/assets/PROXIMA%20CENTAURI%20B-BGQ5iKlk.png" alt="" />
+        </div>
+        <div class="side-planet side-planet--right" id="planet-right" aria-hidden="true">
+            <img id="planet-right-img" src="/assets/TOI-1452%20B-Cg5ckxXC.png" alt="" />
+        </div>
+
+        <!-- ========== 标题（星球正上方）· 外层定位 + 内层动画 ========== -->
+        <section class="headline">
+            <div class="headline__inner" id="headline-inner">
+                <p class="headline__id">
+                    <span class="headline__id-label">ID:</span>
+                    <span class="headline__id-value" id="planet-id">KEPLER-452B</span>
+                </p>
+                <h2 class="headline__title" id="planet-title">THE ELDER COUSIN</h2>
+                <p class="headline__hint">点击<span>左右箭头</span>查看其他行星，点击<span>行星</span>可进行探索</p>
+            </div>
+        </section>
+
+        <!-- ========== 右侧说明 · 线+文字同容器 · 线吸附在文字左侧 ========== -->
+        <aside class="annotation">
+            <div class="annotation__inner" id="annotation-inner">
+                <img class="annotation__line" src="data:image/png;base64,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" alt="" aria-hidden="true" />
+                <div class="annotation__text" id="annotation-text">
+                    <p>外号「地球表哥」：首颗类太阳恒星宜居带内的超级地球，与地球相似度极高。</p>
+                    <p style="margin-top:0.8rem">它已在宜居带内运行约 <b>60&nbsp;亿年</b>，宿主恒星 Kepler-452 比太阳更年长、光度更高。</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ========== 左右箭头 ========== -->
+        <button class="nav-btn nav-btn--prev" id="btn-prev" type="button" aria-label="previous planet">
+            <img src="/assets/Left%20Arrow-f13-9_Ve.png" alt="" />
+        </button>
+        <button class="nav-btn nav-btn--next" id="btn-next" type="button" aria-label="next planet">
+            <img src="/assets/Right%20Arrow-9587kzdg.png" alt="" />
+        </button>
+
+        <button type="button" class="migrate-cta" id="btn-confirm-migration">确认迁徙</button>
+        </main>
+
+        <!-- Level 2 · React component mounts here via src/main.jsx -->
+        <section id="level-2" class="narrative-level" hidden aria-hidden="true">
+        </section>
+        <section id="level-3" class="narrative-level" hidden aria-hidden="true">
+            <div class="narrative-level__inner">
+                <h2 class="narrative-level__title">第三幕</h2>
+                <p class="narrative-level__lead">预留章节。</p>
+            </div>
+        </section>
+
+        <div class="scanlines" aria-hidden="true"></div>
+    </div>
+
+    <!-- Vite + React entry (GSAP loaded via npm inside src/main.jsx) -->
+</body>
+</html>
