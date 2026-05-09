@@ -60,7 +60,7 @@ export const PLANETS = [
         id: "PROXIMA CENTAURI B",
         title: "THE NEAREST NEIGHBOR",
         tagline: "与我们仅一步之遥的红矮星伴侣",
-        image: "images/PROXIMA-CENTAURI B.png",
+        image: "images/PROXIMA-CENTAURI-B.png",
         glowBg: "radial-gradient(circle at center, rgba(255,100,50,0.35) 0%, rgba(255,100,50,0.15) 35%, rgba(255,100,50,0.05) 55%, transparent 70%)",
         rippleColor: "rgba(255,110,60,0.75)",
         coords: [
