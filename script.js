@@ -47,7 +47,7 @@ const PLANETS = [
         id: "TOI-1452 B",
         title: "THE OCEAN WORLD",
         tagline: "冰与水交织的深海星球",
-        image: "images/TOI-1452 B.png",
+        image: "images/TOI-1452-B.png",
         // 色温：深蓝白，呼应深海
         glowBg: "radial-gradient(circle at center, rgba(100,190,255,0.35) 0%, rgba(100,190,255,0.15) 35%, rgba(100,190,255,0.05) 55%, transparent 70%)",
         rippleColor: "rgba(100,190,255,0.75)",
@@ -73,7 +73,7 @@ const PLANETS = [
         id: "PROXIMA CENTAURI B",
         title: "THE NEAREST NEIGHBOR",
         tagline: "与我们仅一步之遥的红矮星伴侣",
-        image: "images/PROXIMA CENTAURI B.png",
+        image: "images/PROXIMA-CENTAURI B.png",
         // 色温：橘红，呼应红矮星高温耀斑
         glowBg: "radial-gradient(circle at center, rgba(255,100,50,0.35) 0%, rgba(255,100,50,0.15) 35%, rgba(255,100,50,0.05) 55%, transparent 70%)",
         rippleColor: "rgba(255,110,60,0.75)",
