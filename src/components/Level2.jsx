@@ -1,15 +1,22 @@
 /**
- * Level2.jsx — 4-Screen Narrative Scroll (v4: clean, tuned)
+ * Level2.jsx — 异星幻梦录 · THE GREAT ILLUSION
  *
- * Changes from v3:
- *   • Glitch / aberration completely removed — clean visuals only
- *   • Screen 1: blur=true FadeContent entrance + body text (narrative.screen2)
- *               slides up via CSS animation (.l2-s1-body)
- *   • Screens 2 & 3: ScrollReveal clears blur in first ~20% of viewport travel
- *                     (wordAnimationEnd="top 60%", rotationEnd="top 60%")
- *                     Image AnimatedContent: distance 44→22, duration 0.9→1.3 (smoother)
- *   • Screen 4: ScrollReveal on confirmText + FadeContent for the button
- *   • useEffect([key]): parallax backgrounds only, no aberration
+ * 4-Chapter Narrative Scroll
+ *   Screen 1 (s1): Series title + floatTitle + Chapter I (text only)
+ *   Screen 2 (s2): Chapter II  + image placeholder + ScrollReveal text
+ *   Screen 3 (s3): Chapter III + image placeholder + ScrollReveal text
+ *   Screen 4 (s4): Chapter IV  + closing ScrollReveal + confirm button
+ *
+ * Interaction preserved:
+ *   • FadeContent blur→clear entrance on Screen 1
+ *   • ScrollReveal word-by-word blur-to-clear on Screens 2, 3, 4
+ *   • AnimatedContent parallax image rise on Screens 2 & 3
+ *   • Background parallax (planet image at 30% scroll speed)
+ *
+ * Per-planet theming:
+ *   data-planet="kepler"  → emerald green accent
+ *   data-planet="toi"     → deep blue / aurora accent
+ *   data-planet="proxima" → warm amber / orange accent
  */
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { gsap } from 'gsap';
@@ -29,8 +36,8 @@ export default function Level2() {
   const [planetIndex, setPlanetIndex] = useState(0);
   const [key, setKey]                 = useState(0);
 
-  const planet         = PLANETS[planetIndex];
-  const { narrative }  = planet;
+  const planet        = PLANETS[planetIndex];
+  const { narrative } = planet;
 
   // ── Reset scroll + refresh ScrollTriggers after sections remount ──────────
   useEffect(() => {
@@ -94,7 +101,12 @@ export default function Level2() {
   }, []);
 
   return (
-    <div ref={wrapRef} id="l2-snap-container" className="l2-wrap">
+    <div
+      ref={wrapRef}
+      id="l2-snap-container"
+      className="l2-wrap"
+      data-planet={planet.planetTheme}
+    >
 
       {/* FIXED CHROME ─────────────────────────────────────────────────────── */}
       <div className="l2-chrome">
@@ -115,14 +127,13 @@ export default function Level2() {
         </nav>
       </div>
 
-      {/* ── SCREEN 1 · Opening title + Chapter I body ──────────────────────
+      {/* ── SCREEN 1 · Chapter I label → Planet ID → Float title → Body ──────
        *
-       *  Entrance: FadeContent with blur=true fades the whole section in with
-       *  a blur-to-clear effect as soon as Level 2 opens (element already in
-       *  viewport, ScrollTrigger fires immediately).
+       *  Chapter label sits at the very top of the inner column so it reads
+       *  before any hero text, giving immediate narrative context.
        *
-       *  Body text: .l2-s1-body uses a CSS animation (l2-s1-body-in) so it
-       *  slides up cleanly without conflicting with FadeContent's GSAP opacity.
+       *  Entrance: FadeContent blur=true fades the whole section on open.
+       *  Body text: .l2-s1-body CSS animation slides up independently.
        */}
       <section className="l2-section l2-s1" key={`s1-${key}`}>
         <FadeContent
@@ -132,6 +143,11 @@ export default function Level2() {
           blur={true}
           className="l2-s1-inner"
         >
+          {/* Chapter I label — topmost element */}
+          <p className="l2-chapter-label l2-s1-ch-label">
+            CHAPTER&nbsp;Ⅰ&nbsp;·&nbsp;{narrative.ch1Label}
+          </p>
+
           <p className="l2-planet-id-label">{planet.id}</p>
 
           <ScrollFloat
@@ -149,22 +165,19 @@ export default function Level2() {
 
           {/* Body text slides up via CSS animation, no GSAP conflict */}
           <div className="l2-s1-body">
-            <p className="l2-reveal-text">{narrative.screen2}</p>
+            <p className="l2-reveal-text">{narrative.ch1}</p>
           </div>
 
           <p className="l2-s1-hint">向下滚动 ↓</p>
         </FadeContent>
       </section>
 
-      {/* ── SCREEN 2 · Chapter I · image + narrative ───────────────────────
+      {/* ── SCREEN 2 · Chapter II · image + narrative ────────────────────────
        *
-       *  ScrollReveal tuning: wordAnimationEnd="top 60%" means the blur clears
-       *  once the text's top edge reaches 60% from the viewport top — roughly
-       *  within the first 20% of viewport travel after entry.
-       *  rotationEnd matches so both animations finish together.
-       *
-       *  AnimatedContent: distance reduced to 22, duration increased to 1.3
-       *  for a more measured, cinematic rise.
+       *  ScrollReveal: wordAnimationEnd="top 80%" — animation completes once
+       *  the text's top edge is at 80% from viewport top, which is reached
+       *  sooner after the shorter (60vh) image, so the blur clears earlier.
+       *  AnimatedContent: distance 22, duration 1.3 for cinematic rise.
        */}
       <section className="l2-section l2-s2" key={`s2-${key}`}>
         <div className="l2-bg-layer" aria-hidden="true">
@@ -172,7 +185,9 @@ export default function Level2() {
         </div>
 
         <div className="l2-content-col">
-          <p className="l2-chapter-label">CHAPTER I · ARRIVAL</p>
+          <p className="l2-chapter-label">
+            CHAPTER&nbsp;Ⅱ&nbsp;·&nbsp;{narrative.ch2Label}
+          </p>
 
           <AnimatedContent
             distance={22}
@@ -196,24 +211,26 @@ export default function Level2() {
             baseRotation={3}
             blurStrength={10}
             scrub={1.5}
-            rotationEnd="top 70%"
+            rotationEnd="top 80%"
             wordAnimationStart="top bottom+=8%"
-            wordAnimationEnd="top 70%"
+            wordAnimationEnd="top 80%"
             textClassName="l2-reveal-text"
           >
-            {narrative.screen2}
+            {narrative.ch2}
           </ScrollReveal>
         </div>
       </section>
 
-      {/* ── SCREEN 3 · Chapter II · image + narrative ─────────────────────── */}
+      {/* ── SCREEN 3 · Chapter III · image + narrative ───────────────────────── */}
       <section className="l2-section l2-s3" key={`s3-${key}`}>
         <div className="l2-bg-layer l2-bg-layer--dimmer" aria-hidden="true">
           <div className="l2-planet-bg" style={{ backgroundImage: `url(${planet.image})` }} />
         </div>
 
         <div className="l2-content-col">
-          <p className="l2-chapter-label">CHAPTER II · DISCOVERY</p>
+          <p className="l2-chapter-label">
+            CHAPTER&nbsp;Ⅲ&nbsp;·&nbsp;{narrative.ch3Label}
+          </p>
 
           <AnimatedContent
             distance={22}
@@ -237,24 +254,26 @@ export default function Level2() {
             baseRotation={-3}
             blurStrength={10}
             scrub={1.5}
-            rotationEnd="top 70%"
+            rotationEnd="top 80%"
             wordAnimationStart="top bottom+=8%"
-            wordAnimationEnd="top 70%"
+            wordAnimationEnd="top 80%"
             textClassName="l2-reveal-text"
           >
-            {narrative.screen3}
+            {narrative.ch3}
           </ScrollReveal>
         </div>
       </section>
 
-      {/* ── SCREEN 4 · Epilogue + confirm ─────────────────────────────────────
+      {/* ── SCREEN 4 · Chapter IV · Closing narrative + confirm ───────────────
        *
-       *  narrative.confirmText holds the closing paragraph added to planets.js.
-       *  Same ScrollReveal params as screens 2 & 3 for consistent feel.
-       *  The button fades in via FadeContent once it enters view.
+       *  ScrollReveal on ch4 text. The button fades in via FadeContent.
        */}
       <section className="l2-section l2-s4" key={`s4-${key}`}>
         <div className="l2-confirm-col">
+
+          <p className="l2-chapter-label l2-s4-ch-label">
+            CHAPTER&nbsp;Ⅳ&nbsp;·&nbsp;{narrative.ch4Label}
+          </p>
 
           <ScrollReveal
             scrollContainerRef={wrapRef}
@@ -268,7 +287,7 @@ export default function Level2() {
             wordAnimationEnd="top 70%"
             textClassName="l2-confirm-text"
           >
-            {narrative.confirmText}
+            {narrative.ch4}
           </ScrollReveal>
 
           <FadeContent

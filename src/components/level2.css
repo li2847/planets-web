@@ -1,7 +1,43 @@
 /* ================================================================
-   Level 2 — Narrative Scroll Styles  (v4: clean, tuned)
+   Level 2 — 异星幻梦录 · THE GREAT ILLUSION
+   Narrative Scroll Styles (v5: 4-chapter, per-planet theming)
    Applied to the React tree inside <section id="level-2">
    ================================================================ */
+
+/* ── Per-planet CSS variables ───────────────────────────────────── */
+/*
+ * Each planet overrides --l2-accent-rgb (R,G,B) and --l2-section-bg.
+ * All accent-colored elements read from these variables so a single
+ * data-planet attribute on .l2-wrap cascades the full theme.
+ */
+
+/* Default (fallback = Kepler cyan) */
+.l2-wrap {
+    --l2-accent-rgb:    37, 244, 238;   /* teal  */
+    --l2-section-bg:    #000;
+    --l2-planet-filter: saturate(0.45) blur(1px);
+}
+
+/* Kepler-452 b · 翡翠色的交响森林 */
+.l2-wrap[data-planet="kepler"] {
+    --l2-accent-rgb:    80, 220, 120;   /* emerald green */
+    --l2-section-bg:    #030c05;
+    --l2-planet-filter: saturate(1.8) hue-rotate(80deg) blur(1px);
+}
+
+/* TOI-1452 b · 深蓝色的极光之海 */
+.l2-wrap[data-planet="toi"] {
+    --l2-accent-rgb:    80, 155, 255;   /* aurora blue */
+    --l2-section-bg:    #01060f;
+    --l2-planet-filter: saturate(1.5) hue-rotate(195deg) blur(1px);
+}
+
+/* Proxima Centauri b · 琥珀色的永恒午后 */
+.l2-wrap[data-planet="proxima"] {
+    --l2-accent-rgb:    255, 155, 50;   /* warm amber */
+    --l2-section-bg:    #0e0800;
+    --l2-planet-filter: saturate(1.3) sepia(0.25) blur(1px);
+}
 
 /* ── Container visibility (hidden-attribute safe) ──────────────── */
 #level-2:not([hidden]) {
@@ -39,7 +75,7 @@
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    background: #000;
+    background: var(--l2-section-bg, #000);
 }
 
 /* ================================================================
@@ -93,33 +129,32 @@
     left: 0;
     width: 0;
     height: 1px;
-    background: rgba(37, 244, 238, 0.7);
+    background: rgba(var(--l2-accent-rgb), 0.7);
     transition: width 0.28s ease;
 }
-.l2-nav-item.is-active { color: rgba(37, 244, 238, 0.9); }
+.l2-nav-item.is-active { color: rgba(var(--l2-accent-rgb), 0.9); }
 .l2-nav-item.is-active::after,
 .l2-nav-item:hover::after { width: 100%; }
 .l2-nav-item:hover { color: rgba(234, 246, 255, 0.65); }
 
 /* ================================================================
-   SCREEN 1 · Opening title + body text
+   SCREEN 1 · Chapter I label → Planet ID → Float title → Body
    ================================================================ */
 .l2-s1 {
     flex-direction: column;
     text-align: center;
-    padding: 6rem 2rem 4rem;       /* top padding clears the chrome */
+    padding: 5.5rem 2rem 4rem;     /* top clears chrome; reduced now label is at top */
 }
 
 /*
  * FadeContent with blur=true wraps l2-s1-inner.
- * This is the "blur→clear" entrance animation for the whole screen.
- * GSAP sets autoAlpha+filter on this div; we only set layout here.
+ * GSAP sets autoAlpha+filter here; we only set layout.
  */
 .l2-s1-inner {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1.5rem;
+    gap: 1.2rem;
     width: 90%;
     max-width: 60rem;
 }
@@ -128,7 +163,7 @@
     font-family: var(--font-display, "Orbitron", sans-serif);
     font-size: clamp(0.58rem, 0.82vw, 0.74rem);
     letter-spacing: 0.42em;
-    color: rgba(37, 244, 238, 0.5);
+    color: rgba(var(--l2-accent-rgb), 0.5);
     text-transform: uppercase;
     margin: 0;
 }
@@ -140,15 +175,14 @@
 }
 .l2-float-text {
     font-family: var(--font-black, "Arial Black", sans-serif) !important;
-    font-size: clamp(2.2rem, 6vw, 5.5rem) !important;
+    font-size: clamp(1.9rem, 5.2vw, 4.8rem) !important;
     color: #fff !important;
-    text-shadow: 0 0 48px rgba(37, 244, 238, 0.12);
+    text-shadow: 0 0 48px rgba(var(--l2-accent-rgb), 0.15);
 }
 
 /*
- * .l2-s1-body wraps the body-text paragraph on Screen 1.
- * Uses a CSS keyframe so the slide-up runs independently of
- * FadeContent's GSAP opacity — no timing conflict.
+ * .l2-s1-body wraps the Chapter I body-text paragraph.
+ * CSS keyframe slide-up runs independently of FadeContent's GSAP opacity.
  * animation-fill-mode: both keeps it invisible until the delay fires.
  */
 .l2-s1-body {
@@ -168,6 +202,12 @@
         transform: translateY(0);
         filter: blur(0px);
     }
+}
+
+/* Chapter label at the top of Screen 1 — left-aligned, no extra margin */
+.l2-s1-ch-label {
+    align-self: flex-start;
+    margin: 0;
 }
 
 .l2-s1-hint {
@@ -208,7 +248,8 @@
     background-position: center;
     background-repeat: no-repeat;
     opacity: 0.14;
-    filter: saturate(0.45) blur(1px);
+    /* per-planet filter applied via CSS variable */
+    filter: var(--l2-planet-filter, saturate(0.45) blur(1px));
 }
 
 .l2-s2,
@@ -223,10 +264,10 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;           /* tightened: was 2rem */
+    gap: 1rem;
     width: 90%;
     max-width: 64rem;
-    padding: 3rem 1.5rem 2.5rem;  /* tightened top: was 5.5rem */
+    padding: 3rem 1.5rem 2.5rem;
     margin: 0 auto;
 }
 
@@ -235,7 +276,7 @@
     font-family: var(--font-display, "Orbitron", sans-serif);
     font-size: clamp(0.52rem, 0.72vw, 0.66rem);
     letter-spacing: 0.4em;
-    color: rgba(37, 244, 238, 0.42);
+    color: rgba(var(--l2-accent-rgb), 0.42);
     text-transform: uppercase;
     margin: 0;
 }
@@ -248,22 +289,22 @@
 }
 
 /*
- * Image placeholder: fixed height so the image never consumes too much
- * vertical space and text always has room below.
- * height: 28vh ≈ 302px on 1080p, scales down gracefully.
- * bg-gray-800 and rounded-lg come from Tailwind CDN.
+ * Image placeholder: 60vh (3/4 of the previous 80vh) — tall enough to
+ * anchor the chapter mood while leaving the narrative text visible sooner.
+ * Sections use min-height: 100vh so they expand naturally to fit.
  */
 .l2-img-placeholder {
     width: 56vw;
     max-width: 100%;
-    height: 50vh;                          /* ~50% of viewport height */
-    background-color: rgb(31, 41, 55);
+    height: 60vh;
+    background-color: rgb(20, 28, 38);
     border-radius: 0.5rem;
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(var(--l2-accent-rgb), 0.1);
     box-shadow:
         0 8px 48px rgba(0, 0, 0, 0.7),
         0 2px 10px rgba(0, 0, 0, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.04);
+        inset 0 1px 0 rgba(255, 255, 255, 0.04),
+        0 0 60px rgba(var(--l2-accent-rgb), 0.05);
 }
 
 /* ScrollReveal text override — project mono palette */
@@ -276,7 +317,7 @@
 }
 
 /* ================================================================
-   SCREEN 4 · Closing narrative + confirm button
+   SCREEN 4 · Chapter IV closing narrative + confirm button
    ================================================================ */
 .l2-s4 {
     flex-direction: column;
@@ -284,17 +325,23 @@
 
 /*
  * .l2-confirm-col is the layout wrapper for screen 4.
- * ScrollReveal puts the narrative text at the top;
- * FadeContent (.l2-btn-wrap) puts the button below it.
+ * Chapter IV label → ScrollReveal narrative → FadeContent button.
  */
 .l2-confirm-col {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 3rem;
+    gap: 2.4rem;
     width: 90%;
     max-width: 52rem;
     padding: 5rem 1.5rem 3rem;
+}
+
+/* Chapter IV label in closing screen */
+.l2-s4-ch-label {
+    align-self: center !important;
+    text-align: center;
+    letter-spacing: 0.55em !important;
 }
 
 /* Closing narrative text via ScrollReveal */
@@ -332,21 +379,21 @@
     letter-spacing: 0.3em;
     color: #fff;
     background: transparent;
-    border: 1.5px solid rgba(37, 244, 238, 0.55);
+    border: 1.5px solid rgba(var(--l2-accent-rgb), 0.55);
     border-radius: 4px;
     cursor: pointer;
     box-shadow:
-        0 0 28px rgba(37, 244, 238, 0.10),
-        inset 0 0 20px rgba(37, 244, 238, 0.02);
+        0 0 28px rgba(var(--l2-accent-rgb), 0.10),
+        inset 0 0 20px rgba(var(--l2-accent-rgb), 0.02);
     transition:
         border-color 0.28s ease,
         box-shadow   0.28s ease,
         background   0.28s ease;
 }
 .l2-confirm-btn:hover {
-    border-color: #25f4ee;
-    background: rgba(37, 244, 238, 0.04);
+    border-color: rgba(var(--l2-accent-rgb), 1);
+    background: rgba(var(--l2-accent-rgb), 0.06);
     box-shadow:
-        0 0 52px rgba(37, 244, 238, 0.28),
-        inset 0 0 24px rgba(37, 244, 238, 0.06);
+        0 0 52px rgba(var(--l2-accent-rgb), 0.28),
+        inset 0 0 24px rgba(var(--l2-accent-rgb), 0.06);
 }

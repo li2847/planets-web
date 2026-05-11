@@ -1,13 +1,23 @@
 /**
  * THE SECOND CRADLE — Shared planet data
  * Imported by both level1.js (GSAP carousel) and Level2.jsx (React narrative).
+ *
+ * Level 2 narrative structure (per planet):
+ *   floatTitle  — large ScrollFloat heading on Screen 1
+ *   ch1Label / ch1 — Chapter I  (Screen 1 body, no image)
+ *   ch2Label / ch2 — Chapter II  (Screen 2, with image)
+ *   ch3Label / ch3 — Chapter III (Screen 3, with image)
+ *   ch4Label / ch4 — Chapter IV  (Screen 4, closing + confirm)
+ *
+ * planetTheme — CSS data-attribute value for per-planet color theming
  */
 export const PLANETS = [
     {
         id: "KEPLER-452B",
         title: "THE ELDER COUSIN",
-        tagline: "它比地球老，像地球的未来",
+        tagline: "翡翠色的交响森林",
         image: "images/KEPLER-452B.png",
+        planetTheme: "kepler",
         glowBg: "radial-gradient(circle at center, rgba(37,244,238,0.35) 0%, rgba(37,244,238,0.15) 35%, rgba(37,244,238,0.05) 55%, transparent 70%)",
         rippleColor: "rgba(37,244,238,0.75)",
         coords: [
@@ -17,24 +27,31 @@ export const PLANETS = [
             { k: "Distance",      v: "~1400 light-years" },
             { k: "Host Star",     v: "Kepler-452" },
         ],
-        annotation:
-            '<p>外号「地球表哥」：首颗类太阳恒星宜居带内的超级地球，与地球相似度极高。</p><p style="margin-top:0.8rem">它已在宜居带内运行约 <b>60&nbsp;亿年</b>，宿主恒星 Kepler-452 比太阳更年长、光度更高。</p>',
-        // Narrative for Level 2
+        annotation: `
+<div class="story-container">
+  <p class="sc-header">外号 <span class="sc-nickname sc-accent">"地球表哥"</span></p>
+  <p class="sc-distance"><span class="sc-dist-prefix">距地球约 </span><span class="sc-dist-num sc-accent">1400 光年</span></p>
+  <p class="sc-landscape">地表被<span class="sc-hl">茂密的常绿森林</span>覆盖，翡翠色山峦与澄澈山涧交错，巨型阔叶树与奇花遍布，林间自带自然共鸣的韵律。</p>
+  <p class="sc-risk"><span class="sc-risk-label">风险：</span><span class="sc-risk-desc">以人类现有技术<span class="sc-hl">几乎无法抵达</span>，即使以光速航行也需要 1400 年。当你抵达时，宿主恒星已进入演化晚期，光度持续升高，宜居带正在向外推移，这颗「地球表哥」<span class="sc-hl">可能已变成一片干旱的荒原</span>。</span></p>
+</div>`,
         narrative: {
-            floatTitle: "地球的远古回响",
-            screen2:
-                "它比地球老了十亿年，在相同的轨道上，见证了我们尚未经历的一切。首颗类太阳恒星宜居带内的超级地球，与地球相似度极高。",
-            screen3:
-                "它已在宜居带内运行约 60 亿年，宿主恒星 Kepler-452 比太阳更年长、光度更高。在那里，一天的光线比我们的更炽热，一年的季节比我们的更漫长。",
-            confirmText:
-                "当你仰望那片遥远的星光，它也在以同样的目光凝视着你。这颗比地球年长十亿年的星球，见证了无数个文明的起落——也许，下一个，将由你续写。",
+            floatTitle: "翡翠色的交响森林",
+            ch1Label: "入 境",
+            ch1: "舱门开启，满眼都是翡翠色山峦，山体被茂密森林覆盖，林间有青绿色缓坡，坡上长满绒状青苔藓，山涧流淌着澄澈的淡绿色溪水，岸边生着巨型阔叶树与淡粉色杯状奇花。",
+            ch2Label: "歌 者",
+            ch2: "你走进森林，听见琴韵般的声响，循声发现一只六足翠鸟。它通体翡翠色，翅膀有淡蓝色斑纹，正落在巨型阔叶树枝干上，脚掌触碰叶片时，叶片便发出清脆回响。",
+            ch3Label: "友 谊",
+            ch3: "翠鸟不慎从枝头滑落，恰好落在你手心，身体微微颤抖。你取出医疗胶小心翼翼为它处理羽尖伤口，它温顺地攥着你的指尖，全程没有挣扎，眼神里满是依赖。",
+            ch4Label: "对 话",
+            ch4: "伤口愈合后，翠鸟停在你肩头，你带着它走到山涧边。翠鸟围着花丛跳跃鸣唱，你坐在青苔藓坡上看着它，心中满是惆怅，这般安稳，就这样一直下去也不错。",
         },
     },
     {
         id: "TOI-1452 B",
         title: "THE OCEAN WORLD",
-        tagline: "冰与水交织的深海星球",
+        tagline: "深蓝色的极光之海",
         image: "images/TOI-1452-B.png",
+        planetTheme: "toi",
         glowBg: "radial-gradient(circle at center, rgba(100,190,255,0.35) 0%, rgba(100,190,255,0.15) 35%, rgba(100,190,255,0.05) 55%, transparent 70%)",
         rippleColor: "rgba(100,190,255,0.75)",
         coords: [
@@ -44,23 +61,31 @@ export const PLANETS = [
             { k: "Distance",      v: "~100 light-years" },
             { k: "Host Star",     v: "TOI-1452" },
         ],
-        annotation:
-            '<p>外号「深蓝摇篮」：半径约地球 <b>1.67</b> 倍，密度暗示其表面可能覆盖一层极深的液态水海洋。</p><p style="margin-top:0.8rem">它是罕见的「海洋世界」候选星，距离近、母星昏暗，是搜寻生命迹象的理想目标。</p>',
+        annotation: `
+<div class="story-container">
+  <p class="sc-header">外号 <span class="sc-nickname sc-accent">"深蓝摇篮"</span></p>
+  <p class="sc-distance"><span class="sc-dist-prefix">距地球约 </span><span class="sc-dist-num sc-accent">100 光年</span></p>
+  <p class="sc-landscape">地表几乎被<span class="sc-hl">极深的液态水海洋</span>覆盖，仅存少量礁石山与类海藻浮岛，海面泛着荧光，<span class="sc-hl">极光常年横跨天穹</span>。</p>
+  <p class="sc-risk"><span class="sc-risk-label">风险：</span><span class="sc-risk-desc">距离适中，是<span class="sc-hl">较有希望抵达</span>的海洋行星之一。当你抵达时，行星正处于极光风暴的活跃期，海面风浪极大，浮岛设施极易受损，着陆平台的稳定性<span class="sc-hl">面临严峻考验</span>。</span></p>
+</div>`,
         narrative: {
-            floatTitle: "深蓝色的静谧",
-            screen2:
-                "整颗星球覆盖着无边无际的深海。半径约地球 1.67 倍，密度暗示其表面可能覆盖一层极深的液态水海洋。",
-            screen3:
-                "「海洋世界」候选星，距离近、母星昏暗，是搜寻生命迹象的理想目标。在那片静水之下，或许存在着我们无法想象的生命形态。",
-            confirmText:
-                "深海之下没有喧嚣，只有无声的存在。冰与水交织的世界，在漫长的宇宙时光中安静等待——等待第一双脚步，踏上它沉默的岸边。",
+            floatTitle: "深蓝色的极光之海",
+            ch1Label: "洗 礼",
+            ch1: "着陆在淡蓝色类海藻浮岛上，远处有低矮的蓝色礁石山，礁石附着发光的淡紫色海苔，岛边浅水区生着半透明柱状海草，深蓝色海面泛着荧光，极光横跨天穹。",
+            ch2Label: "暖 核",
+            ch2: "你在浮岛边缘漫步，靠近礁石山时，发现了一只「暖核狐」。它通体淡蓝色，尾巴像珊瑚般分叉，周身泛着暖光，四肢带蹼，正蹲在礁石旁舔食发光海苔。",
+            ch3Label: "避 难",
+            ch3: "极光风岚骤然袭来，你急忙抱起暖核狐，躲进浮岛边缘的类海藻避风棚，它安静地蜷缩在你怀里传递暖意。",
+            ch4Label: "星辰与大海",
+            ch4: "风暴平息，极光依旧温柔，海面泛着荧光。你带着暖核狐在浮岛漫步，它在类海藻上奔跑戏水，你看着它，心中生出惆怅，这样相依相伴，一直下去就好。",
         },
     },
     {
         id: "PROXIMA CENTAURI B",
         title: "THE NEAREST NEIGHBOR",
-        tagline: "与我们仅一步之遥的红矮星伴侣",
+        tagline: "琥珀色的永恒午后",
         image: "images/PROXIMA-CENTAURI-B.png",
+        planetTheme: "proxima",
         glowBg: "radial-gradient(circle at center, rgba(255,100,50,0.35) 0%, rgba(255,100,50,0.15) 35%, rgba(255,100,50,0.05) 55%, transparent 70%)",
         rippleColor: "rgba(255,110,60,0.75)",
         coords: [
@@ -70,16 +95,23 @@ export const PLANETS = [
             { k: "Distance",      v: "~4.24 light-years" },
             { k: "Host Star",     v: "Proxima Centauri" },
         ],
-        annotation:
-            '<p>外号「近邻行星」：距太阳仅 <b>4.24</b> 光年，围绕红矮星Proxima Centauri 运行，位于其宜居带内。</p><p style="margin-top:0.8rem">它每 11.2 天绕母星一圈，强烈的耀斑辐射是目前已知的最大挑战。</p>',
+        annotation: `
+<div class="story-container">
+  <p class="sc-header">外号 <span class="sc-nickname sc-accent">"近邻行星"</span></p>
+  <p class="sc-distance"><span class="sc-dist-prefix">距地球仅 </span><span class="sc-dist-num sc-accent">4.24 光年</span></p>
+  <p class="sc-landscape">地表被<span class="sc-hl">红色砂岩矮山与溪流</span>覆盖，暗红色母星永不落下，<span class="sc-hl">将天地染成琥珀色</span>，只有微弱的明暗变化。</p>
+  <p class="sc-risk"><span class="sc-risk-label">风险：</span><span class="sc-risk-desc">理论上是<span class="sc-hl">最容易抵达</span>的系外行星之一，但以当前技术，即使借助激光帆推进，也需要数千年航行。抵达时，行星正可能处于母星耀斑活动的高峰期，<span class="sc-hl">辐射环境极不稳定</span>。</span></p>
+</div>`,
         narrative: {
-            floatTitle: "红矮星下的余晖",
-            screen2:
-                "距太阳仅 4.24 光年，是人类目前能够触及的最近星球。围绕红矮星 Proxima Centauri 运行，位于其宜居带内。",
-            screen3:
-                "它每 11.2 天绕母星一圈，强烈的耀斑辐射是目前已知的最大挑战。那片红色的星光笼罩下，是永恒的黄昏，也是新的黎明。",
-            confirmText:
-                "从这里出发，只需跨越四光年。那是一颗用红色黄昏洗礼万物的星球，离你如此之近，近到你几乎能感受到它炽热的呼吸。迁徙不是逃离，而是抵达。",
+            floatTitle: "琥珀色的永恒午后",
+            ch1Label: "降 落",
+            ch1: "舱门开启，目之所及皆是连绵的琥珀色矮山，山体由红色砂岩构成，山脚下蜿蜒着窄细的淡琥珀色溪流，岸边丛生着暗紫色地衣与针状石松。",
+            ch2Label: "初 见",
+            ch2: "沿着溪流前行，你在矮山背阴处，偶然看见一只「流光兔」。它通体淡琥珀色，背生蝉翼般的光翅，正低头舔饮溪水。",
+            ch3Label: "相 依",
+            ch3: "这里的重力略大于地球，你攀过矮山坡时渐渐乏力，不小心踩滑，那只流光兔立刻用脑袋轻轻蹭你的裤腿，引你站稳身形。",
+            ch4Label: "共 生",
+            ch4: "暮色渐暗，琥珀色矮山与溪流泛着微光。你给流光兔取名小光，它围着你轻跳，你蹲在溪边看着它，心中生出惆怅，这样安稳相伴，一直下去也好。",
         },
     },
 ];

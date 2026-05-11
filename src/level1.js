@@ -111,12 +111,46 @@ export function bootLevel1() {
             .join("");
     }
 
+    /* ── 距离数字滚动动画（按星球 id 配置）─────────────────────────── */
+    const DIST_ANIM = {
+        "KEPLER-452B":        { from: 1350, to: 1400, duration: 2800, decimals: 0, suffix: " 光年" },
+        "TOI-1452 B":         { from: 50,   to: 100,  duration: 2400, decimals: 0, suffix: " 光年" },
+        "PROXIMA CENTAURI B": { from: 3.74, to: 4.24, duration: 2000, decimals: 2, suffix: " 光年" },
+    };
+    let _distRafId = null;
+
+    function runDistCountUp(planet) {
+        if (_distRafId !== null) {
+            cancelAnimationFrame(_distRafId);
+            _distRafId = null;
+        }
+        const cfg = DIST_ANIM[planet.id];
+        if (!cfg) return;
+        const el = annotationTxtEl.querySelector(".sc-dist-num");
+        if (!el) {
+            console.warn("[level1] .sc-dist-num element not found in annotation HTML for", planet.id);
+            return;
+        }
+        const { from, to, duration, decimals, suffix } = cfg;
+        const startTs = performance.now();
+        const fmt = (v) => (decimals > 0 ? v.toFixed(decimals) : String(Math.round(v))) + suffix;
+        const easeOut = (t) => 1 - (1 - t) ** 3;
+        el.textContent = fmt(from);
+        function tick(now) {
+            const t = Math.min((now - startTs) / duration, 1);
+            el.textContent = fmt(from + (to - from) * easeOut(t));
+            _distRafId = t < 1 ? requestAnimationFrame(tick) : null;
+        }
+        _distRafId = requestAnimationFrame(tick);
+    }
+
     function writeTextFor(planet) {
         planetIdEl.textContent    = planet.id;
         planetTitleEl.textContent = planet.title;
         taglineEl.textContent     = planet.tagline;
         annotationTxtEl.innerHTML = planet.annotation;
         renderCoords(planet);
+        runDistCountUp(planet);
     }
 
     function stopPlanetCornerBreathing() {
