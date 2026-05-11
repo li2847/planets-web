@@ -43,6 +43,9 @@ import './components/level2.css';
 import { bootLevel1 } from './pages/LevelOne';
 import LevelTwo       from './pages/LevelTwo';
 
+// Galaxy starfield background for Level 1
+import Galaxy from './components/Galaxy/Galaxy';
+
 /* ── Helpers ─────────────────────────────────────────────────────────────── */
 
 /**
@@ -71,6 +74,36 @@ function mountLevel2() {
   ReactDOM.createRoot(host).render(
     <React.StrictMode>
       <LevelTwo />
+    </React.StrictMode>
+  );
+}
+
+/**
+ * Mount the Galaxy starfield into <div id="galaxy-bg-root">.
+ * This is purely a background visual layer — pointer-events:none in CSS
+ * ensures it never intercepts clicks on Level 1 planets/buttons.
+ */
+function mountGalaxyBackground() {
+  const host = document.getElementById('galaxy-bg-root');
+  if (!host) {
+    console.warn('[main] #galaxy-bg-root not found — skipping starfield.');
+    return;
+  }
+  ReactDOM.createRoot(host).render(
+    <React.StrictMode>
+      <Galaxy
+        starSpeed={0}
+        density={0.3}
+        hueShift={30}
+        speed={0.6}
+        glowIntensity={0.1}
+        saturation={0.05}
+        twinkleIntensity={0.3}
+        rotationSpeed={0.05}
+        mouseInteraction={false}
+        mouseRepulsion={false}
+        transparent={false}
+      />
     </React.StrictMode>
   );
 }
@@ -136,6 +169,9 @@ function wireLevel1Buttons(level1) {
 /* ── Bootstrap sequence ──────────────────────────────────────────────────── */
 
 whenReady(() => {
+  // 0. Mount the Galaxy starfield background (purely visual, no interaction).
+  mountGalaxyBackground();
+
   // 1. Mount React Level 2 first (so #l2-snap-container exists when level1
   //    later resets its scrollTop on goToLevel2 onComplete).
   mountLevel2();

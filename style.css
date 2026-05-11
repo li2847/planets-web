@@ -1478,3 +1478,35 @@ button { font: inherit; }
 }
 
 /* K. Level 2 styles are in src/components/level2.css (imported via src/main.jsx) */
+
+/* ================================================================
+   L. Galaxy 星光背景层 — React 挂载到 #galaxy-bg-root
+   ----------------------------------------------------------------
+   定位：fixed 全屏
+   层级：z-index:-1 —— 在 .nebula(-3) / .vignette(-2) 之上，
+                       在所有 #level-1 内容（z-index ≥ 0）之下
+   交互：pointer-events:none —— 不挡星球/按钮点击
+   ================================================================ */
+.galaxy-bg-root {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    pointer-events: none;
+    /* screen 混合：星光与底下的 .nebula / .vignette 取屏叠加，
+       黑底 canvas 被完全消去，仅留亮色星点；
+       因 .scene 有 isolation:isolate，混合只在 .scene 内部生效。 */
+    mix-blend-mode: screen;
+}
+
+/* 双保险：canvas 自身也设 screen，防止 OGL inline style 覆盖容器混合 */
+.galaxy-bg-root canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    mix-blend-mode: screen;
+}
+
+
