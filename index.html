@@ -102,9 +102,54 @@
         <section id="level-2" class="narrative-level" hidden aria-hidden="true">
         </section>
         <section id="level-3" class="narrative-level" hidden aria-hidden="true">
-            <div class="narrative-level__inner">
-                <h2 class="narrative-level__title">第三幕</h2>
-                <p class="narrative-level__lead">预留章节。</p>
+            <!-- ========== 滚动引擎 · 透明全屏滚动层（仅感应滚动，不挡视线）========== -->
+            <div id="scroll-manager-container">
+                <div id="scroll-manager-fake-content" style="height: 5000px;"></div>
+            </div>
+
+            <!-- ========== Stage-1 · 三件占位元素（主 / 侧 / 文案，都绝对定位） ==========
+                 起始仅主元素可见；滚动到 50% 时侧栏完成滑入；滚动到末尾时文案出现。
+                 三者最终态共存于同一屏（主元素再缩一点给上下留空间）。
+            -->
+            <div class="stage-1-wrapper">
+                <!-- 主元素：屏幕正中心，初始尺寸 400 -->
+                <div class="elem-main-placeholder" style="width: 400px; height: 400px; background: rgba(255,255,255,0.2); border: 2px dashed #fff; display: flex; align-items: center; justify-content: center; color: #fff; font-family: var(--font-display); letter-spacing: 0.12em;">
+                    中间主元素
+                </div>
+
+                <!-- 侧栏：主元素右侧；起始 x:100、opacity:0；滚动时滑入并淡入 -->
+                <div class="elem-side-placeholder" style="width: 260px; height: 360px; background: rgba(123, 249, 244, 0.2); border: 2px dashed #7BF9F4; display: flex; align-items: center; justify-content: center; color: #7BF9F4; font-family: var(--font-display); letter-spacing: 0.12em; opacity: 0;">
+                    侧边占位
+                </div>
+
+                <!-- 文案：屏幕下方，独立元素；起始 opacity:0；阶段 2 才出现 -->
+                <div class="elem-caption-placeholder" style="max-width: 720px; text-align: center; color: rgba(234, 246, 255, 0.85); font-family: var(--font-mono); line-height: 1.7; opacity: 0;">
+                    <h3 style="color: #7BF9F4; margin: 0 0 0.6rem; font-family: var(--font-display); letter-spacing: 0.2em; font-size: clamp(1rem, 1.2vw, 1.25rem);">文案标题占位</h3>
+                    <p style="margin: 0; font-size: clamp(0.85rem, 0.95vw, 1rem);">这里是未来的文案区域 —— 将放置该行星 Stage-1 的叙事文字，会随主元素与侧栏一起呈现在同一屏。</p>
+                </div>
+            </div>
+
+            <!-- ========== Stage-2 · 上：OrbitImages 轨道  /  下：focus 主元素 + 文案 ==========
+                 整屏 opacity:0 起始，等以后挂滚动淡入；当前不参与 Stage-1 的时间轴。
+                 子结构都是纯 HTML，只在 .l3-orbit-area 里留一个 React 挂载点
+                 #l3-orbit-mount，main.jsx 会把 <OrbitImages /> 渲染到这里。
+            -->
+            <div class="l3-scene-2" aria-hidden="true">
+                <!-- 上半 · 轨道区 -->
+                <div class="l3-orbit-area">
+                    <div id="l3-orbit-mount"></div>
+                </div>
+
+                <!-- 下半 · focus 主元素 + 文案区 -->
+                <div class="l3-focus-content">
+                    <div class="focus-element-placeholder">
+                        主元素占位
+                    </div>
+                    <div class="focus-text-area">
+                        <h3 class="focus-text-area__title">[此处填写第二屏小标题...]</h3>
+                        <p class="focus-text-area__body">[此处填写详细描述文案...]</p>
+                    </div>
+                </div>
             </div>
         </section>
 

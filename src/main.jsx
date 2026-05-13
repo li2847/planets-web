@@ -42,9 +42,13 @@ import './components/level2.css';
 // Pages
 import { bootLevel1 } from './pages/LevelOne';
 import LevelTwo       from './pages/LevelTwo';
+import { bootLevel3 } from './level3';
 
 // Galaxy starfield background for Level 1
 import Galaxy from './components/Galaxy/Galaxy';
+
+// Level 3 · Stage-2 React islands
+import OrbitImages from './components/OrbitImages';
 
 /* ── Helpers ─────────────────────────────────────────────────────────────── */
 
@@ -74,6 +78,52 @@ function mountLevel2() {
   ReactDOM.createRoot(host).render(
     <React.StrictMode>
       <LevelTwo />
+    </React.StrictMode>
+  );
+}
+
+/**
+ * Mount the OrbitImages React island into <div id="l3-orbit-mount">.
+ * This is a Level-3 Stage-2 component (the orbital ring of placeholder images
+ * floating above the focus area). Static skeleton siblings (focus placeholder
+ * + text area) live in plain HTML inside .l3-scene-2; only the orbit needs
+ * React because the motion-driven offset-path animation is non-trivial in
+ * vanilla JS. Mounting at boot time is fine — the orbit itself sits inside
+ * .l3-scene-2 which is opacity:0/pointer-events:none until a future Stage-2
+ * scroll-enter animation reveals it.
+ */
+function mountLevel3OrbitImages() {
+  const host = document.getElementById('l3-orbit-mount');
+  if (!host) {
+    console.warn('[main] #l3-orbit-mount not found — skipping Level 3 OrbitImages.');
+    return;
+  }
+
+  // 4 placeholder images — picsum random/grayscale; replace with real assets
+  // when the scene's narrative content is finalized.
+  const orbitImages = [
+    'https://picsum.photos/200/200?grayscale&random=1',
+    'https://picsum.photos/200/200?grayscale&random=2',
+    'https://picsum.photos/200/200?grayscale&random=3',
+    'https://picsum.photos/200/200?grayscale&random=4',
+  ];
+
+  ReactDOM.createRoot(host).render(
+    <React.StrictMode>
+      <OrbitImages
+        images={orbitImages}
+        shape="ellipse"
+        radiusX={500}
+        radiusY={120}
+        duration={50}
+        itemSize={150}                            /* 比上版更大 */
+        rotation={0}
+        responsive={true}
+        /* 显示椭圆轨迹线（半透明白），让"四个元素的运动路径"可见 */
+        showPath={true}
+        pathColor="rgba(255,255,255,0.22)"
+        pathWidth={1.5}
+      />
     </React.StrictMode>
   );
 }
@@ -176,6 +226,11 @@ whenReady(() => {
   //    later resets its scrollTop on goToLevel2 onComplete).
   mountLevel2();
 
+  // 1b. Mount the Level-3 Stage-2 OrbitImages React island. Safe to mount at
+  //     boot: its parent .l3-scene-2 is opacity:0/pointer-events:none until
+  //     the future Stage-2 scroll-enter animation reveals it.
+  mountLevel3OrbitImages();
+
   // 2. Boot the GSAP scene → returns the controller.
   const level1 = bootLevel1();
   if (!level1) {
@@ -186,15 +241,24 @@ whenReady(() => {
   // 3. Wire all Level 1 buttons to the controller.
   wireLevel1Buttons(level1);
 
-  // 4. Expose the controller on window for in-browser debugging only.
-  //    Strip this in production by removing the next line.
+  // 4. Boot Level 3 scroll-engine skeleton (Stage-1 only).
+  //    Pure event-listener setup; does NOT create any ScrollTrigger yet (lazy
+  //    init on first 'l3-enter'). Entry is wired from Level 2's "确认迁徙"
+  //    button → dispatch('l3-enter', { detail: { planetIndex } }).
+  const level3 = bootLevel3();
+
+  // 5. Expose controllers on window for in-browser debugging only.
+  //    Strip this in production by removing the next block.
   if (import.meta.env.DEV) {
     window.__level1 = level1;
+    if (level3) window.__level3 = level3;
     console.info(
       '[main] Boot complete. Try in console:\n' +
       '  __level1.switchTo("next")\n' +
       '  __level1.goToLevel2()\n' +
-      '  __level1.getActiveIndex()'
+      '  __level1.getActiveIndex()\n' +
+      '  __level3.show(0|1|2)   // open the corresponding planet\'s Level 3\n' +
+      '  __level3.hide()'
     );
   }
 });

@@ -1,0 +1,57 @@
+/* OrbitImages — base styles from React Bits source.
+   Project-specific tweaks (e.g. the dashed placeholder border for skeleton
+   phase) live in the consumer's stylesheet so this file remains untouched
+   if we later upgrade the React Bits component. */
+
+.orbit-container {
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.orbit-scaling-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.orbit-scaling-container--responsive {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform-origin: center center;
+}
+
+.orbit-rotation-wrapper {
+  width: 100%;
+  height: 100%;
+  transform-origin: center center;
+  position: relative;
+}
+
+.orbit-path-svg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.orbit-item {
+  position: absolute;
+  will-change: transform;
+  user-select: none;
+}
+
+.orbit-center-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.orbit-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}

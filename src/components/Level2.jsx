@@ -96,9 +96,19 @@ export default function Level2() {
   }, [planetIndex]);
 
   // ── Back / confirm ────────────────────────────────────────────────────────
+  // handleBack: 顶部 "← 返回" 按钮 —— 行为不变，仍回 Level 1
   const handleBack = useCallback(() => {
     window.dispatchEvent(new CustomEvent('l2-confirm'));
   }, []);
+
+  // handleEnterLevel3: 第 4 屏 "确认迁徙" 按钮 —— 进入对应行星的 Level 3
+  // 把当前 planetIndex 透传出去，level3.js 用它选 PLANETS[idx].planetTheme
+  // 并写到 #level-3 的 data-planet，供未来 per-planet 主题/文案使用。
+  const handleEnterLevel3 = useCallback(() => {
+    window.dispatchEvent(
+      new CustomEvent('l3-enter', { detail: { planetIndex } })
+    );
+  }, [planetIndex]);
 
   return (
     <div
@@ -298,7 +308,7 @@ export default function Level2() {
             className="l2-btn-wrap"
           >
             <p className="l2-confirm-hint">{planet.tagline}</p>
-            <button type="button" className="l2-confirm-btn" onClick={handleBack}>
+            <button type="button" className="l2-confirm-btn" onClick={handleEnterLevel3}>
               确认迁徙
             </button>
           </FadeContent>

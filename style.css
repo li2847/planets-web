@@ -198,7 +198,7 @@ button { font: inherit; }
     width: 80%;
     height: 300%;
     display: block;
-    opacity: 0.5;        /* 在这里直接调透明度，0.5 就是半透明 */
+    opacity: 0.95;        /* 在这里直接调透明度，0.5 就是半透明 */
     object-fit: contain;
     filter: brightness(0.8); /* 稍微调亮一点，否则太暗看不清 */
 }
@@ -215,12 +215,12 @@ button { font: inherit; }
     font-family: var(--font-cube);     /* LCuboidBlack → 字小魂立方黑.ttf */
     font-size: 11.5px;
     font-variant-numeric: tabular-nums;
-    color: rgba(227, 224, 224, 0.33);
+    color: rgba(227, 224, 224, 0.76);
     letter-spacing: 0.1em;
     line-height: 1.52;
     background: none !important;
 }
-.coord-box__data li span { color: rgba(71, 246, 255, 0.33); }
+.coord-box__data li span { color: rgba(71, 246, 255, 0.749); }
 
 /* ================================================================
    B. 中央星球 · 强制锁死屏幕正中心
@@ -387,7 +387,7 @@ button { font: inherit; }
     top: 49%;            /* 向上偏移以容纳更长的 story-block 内容 */
     width: 20%;          /* 扩宽面板给长文本更多空间 */
     z-index: 10;
-    opacity: 0.68;
+    opacity: 0.85;
 }
 
 .annotation__inner {
@@ -478,7 +478,7 @@ button { font: inherit; }
    ★ 在此块单独调字号、颜色、字重、阴影
    =============================================================== */
 .sc-dist-num {
-    font-size: clamp(0.9rem, 1.2vw, 1.5rem);
+    font-size: clamp(1.0rem, 1.3vw, 1.8rem);
     color: var(--cyan);
     font-weight: 900;
     text-shadow: 0 0 10px rgba(194, 246, 244, 0.45);
@@ -490,7 +490,7 @@ button { font: inherit; }
    =============================================================== */
 .sc-risk-label {
     font-size: clamp(0.68rem, 0.86vw, 0.78rem);
-    color: #f88383;
+    color: #ffffff;
 }
 
 /* ===============================================================
@@ -1510,3 +1510,213 @@ button { font: inherit; }
 }
 
 
+/* ================================================================
+   M. Level 3 · 滚动引擎与 Stage-1 动效骨架（占位阶段）
+   ----------------------------------------------------------------
+   结构：
+     #level-3                          .narrative-level fixed 全屏
+       ├─ #scroll-manager-container    透明全屏滚动层（感应滚轮）
+       │    └─ #scroll-manager-fake-content  5000px 高，撑出滚动距离
+       └─ .stage-1-wrapper             绝对定位框，内含三个独立子元素
+             ├─ .elem-main-placeholder     屏幕正中心（GSAP 控制 scale）
+             ├─ .elem-side-placeholder     主元素右侧（GSAP 控制 x/scale/opacity）
+             └─ .elem-caption-placeholder  屏幕下方（GSAP 控制 y/opacity）
+   ----------------------------------------------------------------
+   ★ 关键 1：所有规则必须用 #level-3:not([hidden]) 限定。否则 ID 特异性
+        盖过 UA 的 [hidden]{display:none}，透明的滚动层会全屏吃滚轮事件，
+        把 Level 2 的原生滚动也卡死。
+   ★ 关键 2：背景设为纯黑，遮住底下的 Galaxy 星空、Nebula 雾、Level 1
+        遗留的星球角标（planet-stage 在 .narrative-level 的径向渐变透明
+        角落会"漏"出来；用 #000 替代渐变即可彻底盖住）。
+   ★ 关键 3：main/side/caption 全部绝对定位，互相不影响布局位置，
+        各自只被 GSAP 做 transform 变换，因此"侧栏滑入"不会把主元素挤偏。
+   ================================================================ */
+#level-3:not([hidden]) {
+    display: block;
+    padding: 0;
+    background: #000;                /* 纯黑，覆盖星空 / 星球角标 */
+}
+
+/* —— 滚动引擎层（仅 Level 3 可见时存在）—— */
+#level-3:not([hidden]) #scroll-manager-container {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    pointer-events: auto;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow-y: scroll;
+    z-index: 5;
+    background: transparent;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+#level-3:not([hidden]) #scroll-manager-container::-webkit-scrollbar {
+    display: none;
+}
+
+/* —— Stage-1 舞台容器：透明全屏，内部三件元素各自绝对定位 ——
+   ★ 关键：三件占位元素全部 pointer-events:none。
+   原因：#scroll-manager-container 是 .stage-1-wrapper 的【兄弟】，不是祖先。
+   如果占位元素是 pointer-events:auto，鼠标停在主元素上滚滚轮，事件命中主元素
+   并沿祖先链冒泡（main → wrapper → #level-3 → ...），永远不会经过滚动容器，
+   于是无法滚动。把占位都设为 none，命中测试就会"穿透"到下一层的滚动容器。
+   未来某个具体子元素（按钮、链接）需要交互时，单独给它写 pointer-events:auto 即可。 */
+#level-3:not([hidden]) .stage-1-wrapper {
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    pointer-events: none;
+}
+
+/* 主元素 · 屏幕正中心
+   GSAP 用 xPercent/yPercent:-50 居中，再 scale；不在这里写 transform，
+   避免 GSAP 重写 transform 时把 translate 冲掉。 */
+#level-3:not([hidden]) .elem-main-placeholder {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    pointer-events: none;
+    will-change: transform;
+}
+
+/* 侧栏 · 主元素右侧 220px 处（左边缘锚点 = 主右边缘 200 + gap 20）
+   transform-origin:left center 让 scale 时左边缘保持不动，
+   与主元素之间的"距离感"不会因为缩放飘移。 */
+#level-3:not([hidden]) .elem-side-placeholder {
+    position: absolute;
+    top: 50%;
+    left: calc(50% + 220px);
+    transform-origin: left center;
+    pointer-events: none;
+    will-change: transform, opacity;
+}
+
+/* 文案 · 屏幕底部居中
+   GSAP 用 xPercent:-50 + y 平移；line-height/字体见 HTML 内联样式 */
+#level-3:not([hidden]) .elem-caption-placeholder {
+    position: absolute;
+    bottom: 9%;
+    left: 50%;
+    pointer-events: none;
+    will-change: transform, opacity;
+}
+
+
+/* ================================================================
+   N. Level 3 · Stage-2 · OrbitImages 轨道 + Focus 文案（占位阶段）
+   ----------------------------------------------------------------
+   结构：
+     .l3-scene-2                       绝对定位铺满屏，opacity:0 起始
+       ├─ .l3-orbit-area               上半区，挂载 React 的 OrbitImages
+       │    └─ #l3-orbit-mount         React 岛挂载点
+       └─ .l3-focus-content            下半区
+            ├─ .focus-element-placeholder  主元素色块
+            └─ .focus-text-area             标题 + 正文
+   ----------------------------------------------------------------
+   ★ 跟 stage-1-wrapper 同级、z-index 更高一档（7），所以以后做 stage1→2
+     的切换只需要把 .l3-scene-2 的 opacity 拉到 1（同时收 stage-1）。
+   ★ 整屏 opacity:0、pointer-events:none，目前仅作占位，不参与 stage-1 时间轴。
+   ★ .orbit-image 加虚线边框 + 半透底色，明确这是"轨道元素占位符"；
+     未来换成真图时直接去掉这条规则即可。
+   ================================================================ */
+#level-3:not([hidden]) .l3-scene-2 {
+    position: absolute;
+    inset: 0;
+    z-index: 7;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: stretch;
+    padding: 4vh 4vw;
+    box-sizing: border-box;
+    opacity: 0;                 /* 由 level3.js 的 timeline 在 0.55→0.75 拉到 1 */
+    pointer-events: none;
+}
+
+/* ★ 与 stage-1 同样的"滚轮黑洞"防护：
+   .l3-scene-2 内所有后代统一 pointer-events:none，让滚轮事件可以穿透
+   stage-2 元素落到下方的 #scroll-manager-container，否则鼠标停在轨道图
+   或 focus 色块上就会卡住滚动。未来某个具体子元素需要交互（按钮/链接），
+   单独给它 pointer-events:auto 即可。 */
+#level-3:not([hidden]) .l3-scene-2 * {
+    pointer-events: none;
+}
+
+/* —— 上半 · 轨道区 —— */
+#level-3:not([hidden]) .l3-orbit-area {
+    flex: 0 0 55%;              /* 上半 55% 给椭圆轨道更多横向空间 */
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+#level-3:not([hidden]) #l3-orbit-mount {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+/* 让 .orbit-container 在挂载点里自适应；OrbitImages 默认 margin:auto，
+   在 flex 居中容器里依然 OK，这里再保险加一行最大宽限制。 */
+#level-3:not([hidden]) #l3-orbit-mount > .orbit-container {
+    max-width: min(100%, 1100px);
+}
+
+/* —— 轨道图片"占位符"样式 ——
+   仅在 Stage-2 范围内生效，不影响 OrbitImages 组件自身的 .orbit-image 基线。
+   白色实线 + 白色淡底，跟 focus 元素保持视觉一致。 */
+#level-3:not([hidden]) .l3-orbit-area .orbit-image {
+    border: 2px solid #fff;
+    background: rgba(255, 255, 255, 0.10);
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+/* —— 下半 · focus 主元素 + 文案 —— */
+#level-3:not([hidden]) .l3-focus-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(1rem, 2vh, 2rem);
+    text-align: center;
+}
+
+#level-3:not([hidden]) .focus-element-placeholder {
+    width: clamp(160px, 18vw, 260px);
+    height: clamp(200px, 24vh, 320px);   /* 比之前更"高"，更偏 portrait */
+    background: rgba(255, 255, 255, 0.18);
+    border: 2px solid #fff;              /* 实线白边，去掉虚线 */
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-family: var(--font-display);
+    letter-spacing: 0.12em;
+    font-size: clamp(0.8rem, 0.9vw, 1rem);
+}
+
+#level-3:not([hidden]) .focus-text-area {
+    max-width: 720px;
+    color: rgba(234, 246, 255, 0.85);
+    font-family: var(--font-mono);
+    line-height: 1.7;
+}
+#level-3:not([hidden]) .focus-text-area__title {
+    color: #7BF9F4;
+    margin: 0 0 0.6rem;
+    font-family: var(--font-display);
+    letter-spacing: 0.2em;
+    font-size: clamp(1rem, 1.2vw, 1.25rem);
+}
+#level-3:not([hidden]) .focus-text-area__body {
+    margin: 0;
+    font-size: clamp(0.85rem, 0.95vw, 1rem);
+}
