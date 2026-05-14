@@ -221,6 +221,22 @@ export function bootLevel3() {
         }
     }
 
+    /* 反向恢复 #level-2 —— 对称地撤销 show() 里给 #level-2 做的隐藏动作。
+       show() 里干了：opacity→0、setAttribute('hidden')、setAttribute('aria-hidden','true')。
+       这里反过来：remove hidden、aria-hidden=false、opacity 从 0 淡入到 1。
+       注意：#planet-stage 的位置(L2 角标位)是 L1→L2 时设的，L2→L3→L2 期间没动过，
+       所以这里不需要重新摆位置；hide() 已经把它的 opacity 拉回 1 了。 */
+    function restoreLevel2() {
+        if (!lv2) return;
+        if (!lv2.hasAttribute('hidden')) return;     // 已经可见就不重复触发
+        lv2.removeAttribute('hidden');
+        lv2.setAttribute('aria-hidden', 'false');
+        gsap.fromTo(lv2,
+            { opacity: 0 },
+            { opacity: 1, duration: 0.5, ease: 'power2.out' }
+        );
+    }
+
     /* ── 事件接线 ──────────────────────────────────────────────────────── */
     // 记住进入 L3 时携带的 planetIndex，返回时透传给 L2，保证回到的是同一颗行星。
     let lastPlanetIndex = 0;
@@ -232,12 +248,17 @@ export function bootLevel3() {
     });
     window.addEventListener('l3-exit', () => hide());
 
-    // 左上角"← 返回"按钮：退出 L3 → 唤起 L2（带上原 planetIndex）
-    // 派发顺序：先 l3-exit 启动 L3 淡出，再 l2-enter 让 L2 立刻接管；两者动画时
-    // 相近(L3:0.35s 淡出 / L2:进入逻辑)，肉眼上是平滑的关卡切换。
+    // 左上角"← 返回"按钮：退出 L3 → 让 #level-2 重新可见 → 通知 React L2 更新 planetIndex
+    // 派发顺序：
+    //   1) l3-exit         → hide() 启动 L3 淡出 (0.35s)
+    //   2) restoreLevel2() → 摘掉 [hidden] / opacity:0 → 1 淡入 (0.5s)
+    //      ★ 必须做这一步：show() 里曾给 #level-2 加 [hidden]+opacity:0，
+    //        光靠 'l2-enter' 只触发 React 状态更新，DOM 节点依旧是 hidden 的
+    //   3) l2-enter        → Level2.jsx 刷新 planetIndex / 重建 ScrollTrigger
     if (backBtn) {
         backBtn.addEventListener('click', () => {
             window.dispatchEvent(new CustomEvent('l3-exit'));
+            restoreLevel2();
             window.dispatchEvent(
                 new CustomEvent('l2-enter', { detail: { planetIndex: lastPlanetIndex } })
             );
