@@ -1552,6 +1552,37 @@ button { font: inherit; }
     scrollbar-width: none;
     -ms-overflow-style: none;
 }
+
+/* —— 左上角返回按钮 ——
+   绝对定位、z-index 高于 .l3-scene-2(7) 和 #scroll-manager-container(5)；
+   pointer-events:auto 确保点击不被滚动层吞掉。
+   配色用 L3 主色 #7BF9F4（与 .focus-text-area__title 一致）。 */
+#level-3:not([hidden]) .l3-back-btn {
+    position: absolute;
+    top: clamp(18px, 2.2vh, 32px);
+    left: clamp(18px, 2vw, 36px);
+    z-index: 20;
+    pointer-events: auto;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-display, "Orbitron", sans-serif);
+    font-size: clamp(0.7rem, 0.85vw, 0.85rem);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #7BF9F4;
+    padding: 0.45rem 0.7rem;
+    transition: color 0.22s ease, text-shadow 0.22s ease, transform 0.22s ease;
+}
+#level-3:not([hidden]) .l3-back-btn:hover {
+    color: #fff;
+    text-shadow: 0 0 10px rgba(123, 249, 244, 0.55);
+    transform: translateX(-2px);
+}
+#level-3:not([hidden]) .l3-back-btn:focus-visible {
+    outline: 1px solid rgba(123, 249, 244, 0.7);
+    outline-offset: 4px;
+}
 #level-3:not([hidden]) #scroll-manager-container::-webkit-scrollbar {
     display: none;
 }
@@ -1581,13 +1612,13 @@ button { font: inherit; }
     will-change: transform;
 }
 
-/* 侧栏 · 主元素右侧 220px 处（左边缘锚点 = 主右边缘 200 + gap 20）
+/* 侧栏 · 主元素右侧 280px 处（更靠右，避免视觉上"从中间冒出"）
    transform-origin:left center 让 scale 时左边缘保持不动，
    与主元素之间的"距离感"不会因为缩放飘移。 */
 #level-3:not([hidden]) .elem-side-placeholder {
     position: absolute;
     top: 50%;
-    left: calc(50% + 220px);
+    left: calc(50% + 280px);
     transform-origin: left center;
     pointer-events: none;
     will-change: transform, opacity;
@@ -1605,20 +1636,21 @@ button { font: inherit; }
 
 
 /* ================================================================
-   N. Level 3 · Stage-2 · OrbitImages 轨道 + Focus 文案（占位阶段）
+   N. Level 3 · Stage-2 · OrbitImages 轨道环绕主元素 + 文案（占位阶段）
    ----------------------------------------------------------------
    结构：
      .l3-scene-2                       绝对定位铺满屏，opacity:0 起始
-       ├─ .l3-orbit-area               上半区，挂载 React 的 OrbitImages
+       ├─ .l3-orbit-area               轨道区（React OrbitImages + centerContent 叠放）
        │    └─ #l3-orbit-mount         React 岛挂载点
-       └─ .l3-focus-content            下半区
-            ├─ .focus-element-placeholder  主元素色块
-            └─ .focus-text-area             标题 + 正文
+       │         └─ .orbit-container   OrbitImages 根节点
+       │              └─ .orbit-center-content  主元素居中叠放（z-index:10+）
+       │                   └─ .focus-element-placeholder  200×200 正方形主元素
+       └─ .focus-text-area             标题 + 正文（轨道正下方）
    ----------------------------------------------------------------
    ★ 跟 stage-1-wrapper 同级、z-index 更高一档（7），所以以后做 stage1→2
      的切换只需要把 .l3-scene-2 的 opacity 拉到 1（同时收 stage-1）。
    ★ 整屏 opacity:0、pointer-events:none，目前仅作占位，不参与 stage-1 时间轴。
-   ★ .orbit-image 加虚线边框 + 半透底色，明确这是"轨道元素占位符"；
+   ★ .orbit-image 加白色边框 + 半透底色，明确这是"轨道元素占位符"；
      未来换成真图时直接去掉这条规则即可。
    ================================================================ */
 #level-3:not([hidden]) .l3-scene-2 {
@@ -1627,8 +1659,9 @@ button { font: inherit; }
     z-index: 7;
     display: flex;
     flex-direction: column;
-    align-items: stretch;
-    justify-content: stretch;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(1.5rem, 3vh, 3rem);
     padding: 4vh 4vw;
     box-sizing: border-box;
     opacity: 0;                 /* 由 level3.js 的 timeline 在 0.55→0.75 拉到 1 */
@@ -1644,10 +1677,10 @@ button { font: inherit; }
     pointer-events: none;
 }
 
-/* —— 上半 · 轨道区 —— */
+/* —— 轨道区：OrbitImages + 主元素叠放 —— */
 #level-3:not([hidden]) .l3-orbit-area {
-    flex: 0 0 55%;              /* 上半 55% 给椭圆轨道更多横向空间 */
-    min-height: 0;
+    flex: 0 0 auto;
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1676,23 +1709,18 @@ button { font: inherit; }
     box-sizing: border-box;
 }
 
-/* —— 下半 · focus 主元素 + 文案 —— */
-#level-3:not([hidden]) .l3-focus-content {
-    flex: 1 1 auto;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: clamp(1rem, 2vh, 2rem);
-    text-align: center;
-}
-
+/* —— 轨道中心：主元素（由 OrbitImages centerContent 渲染，depth=true 模式） ——
+   注意：depth=true 时 centerContent 渲染在 .orbit-rotation-wrapper 内部，
+   该层位于 baseWidth(1400px) 的设计空间里，会被 .orbit-scaling-container 的
+   transform:scale(containerWidth/baseWidth) 一并缩放。
+   为了让最终视觉接近 180×280px，这里按 ~0.78 的典型缩放系数反推为 230×360
+   设计像素 —— 这样在 1100px 容器宽度下显示尺寸 ≈ 180×280px。
+   主元素与轨道一起随视口缩放，比例关系保持不变。 */
 #level-3:not([hidden]) .focus-element-placeholder {
-    width: clamp(160px, 18vw, 260px);
-    height: clamp(200px, 24vh, 320px);   /* 比之前更"高"，更偏 portrait */
+    width: 230px;
+    height: 360px;
     background: rgba(255, 255, 255, 0.18);
-    border: 2px solid #fff;              /* 实线白边，去掉虚线 */
+    border: 2px solid #fff;
     border-radius: 10px;
     display: flex;
     align-items: center;
@@ -1701,10 +1729,15 @@ button { font: inherit; }
     font-family: var(--font-display);
     letter-spacing: 0.12em;
     font-size: clamp(0.8rem, 0.9vw, 1rem);
+    /* 不需要 z-index：在 .orbit-rotation-wrapper 里它跟轨道项是兄弟，
+       由 OrbitImages 的 depth 逻辑把外层 .orbit-center-content--inline 设 z-index:0，
+       轨道项动态给 -10/10，自动形成 fake-3D 遮挡。 */
 }
 
+/* —— 文案区（轨道正下方，.l3-scene-2 直接子元素） —— */
 #level-3:not([hidden]) .focus-text-area {
     max-width: 720px;
+    text-align: center;
     color: rgba(234, 246, 255, 0.85);
     font-family: var(--font-mono);
     line-height: 1.7;

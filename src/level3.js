@@ -74,6 +74,7 @@ export function bootLevel3() {
     const mainEl        = lv3?.querySelector('.elem-main-placeholder');
     const sideEl        = lv3?.querySelector('.elem-side-placeholder');
     const captionEl     = lv3?.querySelector('.elem-caption-placeholder');
+    const backBtn       = document.getElementById('l3-back-btn');
 
     if (!lv3 || !scroller || !fakeContent || !mainEl || !sideEl || !captionEl
         || !stage1Wrapper || !stage2El) {
@@ -103,7 +104,8 @@ export function bootLevel3() {
         });
         gsap.set(sideEl, {
             yPercent: -50,
-            x: 100, opacity: 0,
+            // x:500 起步：让侧栏从屏幕右侧明显滑入，而不是看起来"从主元素旁边冒出"
+            x: 500, opacity: 0,
             scale: 1,
         });
         gsap.set(captionEl, {
@@ -220,11 +222,29 @@ export function bootLevel3() {
     }
 
     /* ── 事件接线 ──────────────────────────────────────────────────────── */
+    // 记住进入 L3 时携带的 planetIndex，返回时透传给 L2，保证回到的是同一颗行星。
+    let lastPlanetIndex = 0;
+
     window.addEventListener('l3-enter', (e) => {
         const idx = e?.detail?.planetIndex ?? 0;
+        lastPlanetIndex = idx;
         show(idx);
     });
     window.addEventListener('l3-exit', () => hide());
+
+    // 左上角"← 返回"按钮：退出 L3 → 唤起 L2（带上原 planetIndex）
+    // 派发顺序：先 l3-exit 启动 L3 淡出，再 l2-enter 让 L2 立刻接管；两者动画时
+    // 相近(L3:0.35s 淡出 / L2:进入逻辑)，肉眼上是平滑的关卡切换。
+    if (backBtn) {
+        backBtn.addEventListener('click', () => {
+            window.dispatchEvent(new CustomEvent('l3-exit'));
+            window.dispatchEvent(
+                new CustomEvent('l2-enter', { detail: { planetIndex: lastPlanetIndex } })
+            );
+        });
+    } else {
+        console.warn('[level3] #l3-back-btn not found — back button is non-functional.');
+    }
 
     /* ── Dev / 公开 API ───────────────────────────────────────────────── */
     return {

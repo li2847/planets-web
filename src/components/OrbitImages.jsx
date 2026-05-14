@@ -1,10 +1,19 @@
 // Component created by Dominik Koch
 // https://x.com/dominikkoch
 //
-// Source from React Bits — kept verbatim except for the import path of the
-// adjacent OrbitImages.css. Do NOT add project-specific business logic here;
-// any per-scene customization belongs in the caller (e.g. main.jsx mounting
-// site or a wrapper component).
+// Source from React Bits.
+//
+// Modifications from upstream:
+//   • Added `depth` prop (default false) — generic fake-3D occlusion feature.
+//     When true:
+//       1. `centerContent` is rendered INSIDE the rotation wrapper so it
+//          shares a stacking context with the orbiting items.
+//       2. Each item receives a dynamic z-index based on its current Y on
+//          the path: items on the bottom half of the orbit ("front", closer
+//          to viewer) stack above the center content; items on the top half
+//          ("back") stack behind it.
+//     This is a general orbital feature, not project-specific business logic.
+//     Default behavior (depth=false) is unchanged from upstream.
 
 import { useMemo, useEffect, useRef, useState } from 'react';
 import { motion, useMotionValue, useTransform, animate } from 'motion/react';
@@ -76,12 +85,43 @@ function generateWavePath(cx, cy, w, amplitude, waves) {
   return pts.join(' ') + ' Z';
 }
 
-function OrbitItem({ item, index, totalItems, path, itemSize, rotation, progress, fill }) {
+function OrbitItem({
+  item,
+  index,
+  totalItems,
+  path,
+  itemSize,
+  rotation,
+  progress,
+  fill,
+  depth,
+  pathRef,
+  pathLengthRef,
+  designCenterY,
+}) {
   const itemOffset = fill ? (index / totalItems) * 100 : 0;
 
   const offsetDistance = useTransform(progress, (p) => {
     const offset = (((p + itemOffset) % 100) + 100) % 100;
     return `${offset}%`;
+  });
+
+  // Depth z-index: query the path's Y at the item's current arc-length.
+  // Refs are stable across renders; `.current` always reads the latest value,
+  // so the closure never goes stale even if pathLength is measured later.
+  const zIndex = useTransform(progress, (p) => {
+    if (!depth) return 0;
+    const pathEl = pathRef?.current;
+    const pathLen = pathLengthRef?.current;
+    if (!pathEl || !pathLen) return 0;
+    const offset = (((p + itemOffset) % 100) + 100) % 100;
+    try {
+      const pt = pathEl.getPointAtLength((offset / 100) * pathLen);
+      // y > cy ⇒ bottom half (visually "in front") ⇒ above center content
+      return pt.y > designCenterY ? 10 : -10;
+    } catch {
+      return 0;
+    }
   });
 
   return (
@@ -94,6 +134,7 @@ function OrbitItem({ item, index, totalItems, path, itemSize, rotation, progress
         offsetRotate: '0deg',
         offsetAnchor: 'center center',
         offsetDistance,
+        ...(depth ? { zIndex } : null),
       }}
     >
       <div style={{ transform: `rotate(${-rotation}deg)` }}>{item}</div>
@@ -127,12 +168,19 @@ export default function OrbitImages({
   paused = false,
   centerContent,
   responsive = false,
+  depth = false,
 }) {
   const containerRef = useRef(null);
   const [scale, setScale] = useState(1);
 
   const designCenterX = baseWidth / 2;
   const designCenterY = baseWidth / 2;
+
+  // Path measurement (only meaningful when depth is enabled).
+  // pathLengthRef is a mutable ref so updates don't require re-render —
+  // OrbitItem's useTransform closure reads `.current` each tick.
+  const pathRef = useRef(null);
+  const pathLengthRef = useRef(0);
 
   const path = useMemo(() => {
     switch (shape) {
@@ -172,6 +220,21 @@ export default function OrbitImages({
     observer.observe(containerRef.current);
     return () => observer.disconnect();
   }, [responsive, baseWidth]);
+
+  // Measure path length whenever the path geometry changes.
+  // getTotalLength() requires the SVG path element to be mounted, so we run
+  // this after render (effect). The result is stored on a ref consumed by
+  // each OrbitItem's z-index transformer.
+  useEffect(() => {
+    if (!depth) return;
+    const el = pathRef.current;
+    if (!el) return;
+    try {
+      pathLengthRef.current = el.getTotalLength();
+    } catch {
+      pathLengthRef.current = 0;
+    }
+  }, [path, depth]);
 
   const progress = useMotionValue(0);
 
@@ -222,15 +285,48 @@ export default function OrbitImages({
           className="orbit-rotation-wrapper"
           style={{ transform: `rotate(${rotation}deg)` }}
         >
-          {showPath && (
+          {/* Render the SVG path when either:
+                · showPath: user wants to see the orbit trail, OR
+                · depth: we need a measurable <path> element for getPointAtLength.
+              When depth is on but showPath is off, the path renders with a
+              transparent stroke (invisible but still measurable). */}
+          {(showPath || depth) && (
             <svg
               width="100%"
               height="100%"
               viewBox={`0 0 ${baseWidth} ${baseWidth}`}
               className="orbit-path-svg"
+              aria-hidden="true"
             >
-              <path d={path} fill="none" stroke={pathColor} strokeWidth={pathWidth / scale} />
+              <path
+                ref={pathRef}
+                d={path}
+                fill="none"
+                stroke={showPath ? pathColor : 'transparent'}
+                strokeWidth={showPath ? pathWidth / scale : 0}
+              />
             </svg>
+          )}
+
+          {/* Depth mode: render centerContent INSIDE the rotation wrapper so
+              it shares a stacking context with the orbiting items. The
+              counter-rotate keeps it upright when the orbit itself is tilted. */}
+          {depth && centerContent && (
+            <div
+              className="orbit-center-content orbit-center-content--inline"
+              style={{
+                position: 'absolute',
+                left: '50%',
+                top: '50%',
+                transform: `translate(-50%, -50%) rotate(${-rotation}deg)`,
+                zIndex: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              {centerContent}
+            </div>
           )}
 
           {items.map((item, index) => (
@@ -244,12 +340,18 @@ export default function OrbitImages({
               rotation={rotation}
               progress={progress}
               fill={fill}
+              depth={depth}
+              pathRef={pathRef}
+              pathLengthRef={pathLengthRef}
+              designCenterY={designCenterY}
             />
           ))}
         </div>
       </div>
 
-      {centerContent && (
+      {/* Legacy (non-depth) center overlay: outside the scaling/rotation
+          stack so the orbit items always render below it. */}
+      {!depth && centerContent && (
         <div className="orbit-center-content">
           {centerContent}
         </div>

@@ -113,16 +113,19 @@ function mountLevel3OrbitImages() {
       <OrbitImages
         images={orbitImages}
         shape="ellipse"
-        radiusX={500}
-        radiusY={120}
+        radiusX={650}                             /* 横向再放宽，让轨道明显环绕长方形主元素 */
+        radiusY={150}
         duration={50}
-        itemSize={150}                            /* 比上版更大 */
+        itemSize={150}
         rotation={0}
         responsive={true}
-        /* 显示椭圆轨迹线（半透明白），让"四个元素的运动路径"可见 */
         showPath={true}
         pathColor="rgba(255,255,255,0.22)"
         pathWidth={1.5}
+        depth={true}                              /* fake-3D 遮挡：下半圆轨道项盖在主元素上，上半圆被主元素挡住 */
+        centerContent={
+          <div className="focus-element-placeholder">主元素占位</div>
+        }
       />
     </React.StrictMode>
   );

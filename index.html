@@ -102,6 +102,13 @@
         <section id="level-2" class="narrative-level" hidden aria-hidden="true">
         </section>
         <section id="level-3" class="narrative-level" hidden aria-hidden="true">
+            <!-- ========== 左上角返回按钮（始终可见，点击 → 退出 L3 并进入 L2）==========
+                 与 .l3-scene-2 / #scroll-manager-container 同级，z-index 高于两者
+                 (.l3-scene-2 = z:7, #scroll-manager-container = z:5)，确保可点击。 -->
+            <button type="button" id="l3-back-btn" class="l3-back-btn" aria-label="返回上一关">
+                ← 返回
+            </button>
+
             <!-- ========== 滚动引擎 · 透明全屏滚动层（仅感应滚动，不挡视线）========== -->
             <div id="scroll-manager-container">
                 <div id="scroll-manager-fake-content" style="height: 5000px;"></div>
@@ -129,26 +136,21 @@
                 </div>
             </div>
 
-            <!-- ========== Stage-2 · 上：OrbitImages 轨道  /  下：focus 主元素 + 文案 ==========
+            <!-- ========== Stage-2 · 轨道环绕主元素 + 文案 ==========
                  整屏 opacity:0 起始，等以后挂滚动淡入；当前不参与 Stage-1 的时间轴。
-                 子结构都是纯 HTML，只在 .l3-orbit-area 里留一个 React 挂载点
-                 #l3-orbit-mount，main.jsx 会把 <OrbitImages /> 渲染到这里。
+                 主元素 (.focus-element-placeholder) 由 main.jsx 通过 centerContent
+                 传入 OrbitImages，叠放在轨道正中心；文案区在轨道正下方。
             -->
             <div class="l3-scene-2" aria-hidden="true">
-                <!-- 上半 · 轨道区 -->
+                <!-- 轨道区：OrbitImages 挂载点，主元素通过 centerContent 绝对居中 -->
                 <div class="l3-orbit-area">
                     <div id="l3-orbit-mount"></div>
                 </div>
 
-                <!-- 下半 · focus 主元素 + 文案区 -->
-                <div class="l3-focus-content">
-                    <div class="focus-element-placeholder">
-                        主元素占位
-                    </div>
-                    <div class="focus-text-area">
-                        <h3 class="focus-text-area__title">[此处填写第二屏小标题...]</h3>
-                        <p class="focus-text-area__body">[此处填写详细描述文案...]</p>
-                    </div>
+                <!-- 文案区（轨道正下方，不遮挡旋转效果） -->
+                <div class="focus-text-area">
+                    <h3 class="focus-text-area__title">[此处填写第二屏小标题...]</h3>
+                    <p class="focus-text-area__body">[此处填写详细描述文案...]</p>
                 </div>
             </div>
         </section>
