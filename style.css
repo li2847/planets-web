@@ -116,16 +116,7 @@ button { font: inherit; }
     inset: 0;
     z-index: -2;
     pointer-events: none;
-    background:
-        radial-gradient(ellipse at center,
-            transparent 35%,
-            rgba(0, 0, 0, 0.55) 80%,
-            rgba(0, 0, 0, 0.9)  100%),
-        linear-gradient(to bottom,
-            rgba(0, 0, 0, 0.25) 0%,
-            transparent 30%,
-            transparent 70%,
-            rgba(0, 0, 0, 0.4)  100%);
+    background: none;
 }
 
 .scanlines {
@@ -1556,35 +1547,50 @@ button { font: inherit; }
 /* —— 左上角返回按钮 ——
    绝对定位、z-index 高于 .l3-scene-2(7) 和 #scroll-manager-container(5)；
    pointer-events:auto 确保点击不被滚动层吞掉。
-   配色用 L3 主色 #7BF9F4（与 .focus-text-area__title 一致）。 */
+   样式与 Level 2 的 .l2-back-btn 对齐：低饱和度小号文字、悬停变白，
+   去掉之前的青色配色 / 字光晕 / 位移过渡，整体更克制、和 L2 视觉一致。 */
 #level-3:not([hidden]) .l3-back-btn {
     position: absolute;
-    top: clamp(18px, 2.2vh, 32px);
-    left: clamp(18px, 2vw, 36px);
+    top: 1.1rem;
+    left: 2.5rem;
     z-index: 20;
     pointer-events: auto;
     background: none;
     border: none;
     cursor: pointer;
     font-family: var(--font-display, "Orbitron", sans-serif);
-    font-size: clamp(0.7rem, 0.85vw, 0.85rem);
+    font-size: clamp(0.78rem, 0.9vw, 0.9rem);
     letter-spacing: 0.22em;
     text-transform: uppercase;
-    color: #7BF9F4;
-    padding: 0.45rem 0.7rem;
-    transition: color 0.22s ease, text-shadow 0.22s ease, transform 0.22s ease;
+    color: rgba(234, 246, 255, 0.45);
+    padding: 0.25rem 0;
+    transition: color 0.22s ease;
 }
 #level-3:not([hidden]) .l3-back-btn:hover {
     color: #fff;
-    text-shadow: 0 0 10px rgba(123, 249, 244, 0.55);
-    transform: translateX(-2px);
 }
 #level-3:not([hidden]) .l3-back-btn:focus-visible {
-    outline: 1px solid rgba(123, 249, 244, 0.7);
+    outline: 1px solid rgba(234, 246, 255, 0.4);
     outline-offset: 4px;
 }
 #level-3:not([hidden]) #scroll-manager-container::-webkit-scrollbar {
     display: none;
+}
+#level-3 {
+    --l3-accent-rgb: 0, 200, 122;    /* #007b52 同色相提亮 → #00c87a */
+    --l3-text-max-width: 52rem;
+    /* 第一屏 / 第二屏正文距屏幕底部的统一距离 —— 两屏共用同一个变量，
+       保证视觉上"高度一样"，调一次就同步生效。 */
+    --l3-text-bottom: 15%;
+}
+#level-3[data-planet="kepler"] {
+    --l3-accent-rgb: 0, 200, 122;    /* #007b52 同色相提亮 → #00c87a */
+}
+#level-3[data-planet="toi"] {
+    --l3-accent-rgb: 99, 180, 255;   /* #63b4ff 保持不变 */
+}
+#level-3[data-planet="proxima"] {
+    --l3-accent-rgb: 232, 99, 74;    /* #d55539 同色相提亮 → #e8634a */
 }
 
 /* —— Stage-1 舞台容器：透明全屏，内部三件元素各自绝对定位 ——
@@ -1600,6 +1606,37 @@ button { font: inherit; }
     z-index: 6;
     pointer-events: none;
 }
+
+#level-3:not([hidden]) .l3-corner-chapter {
+    position: absolute;
+    top: clamp(6.4rem, 14vh, 9.2rem);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 12;
+    margin: 0;
+    font-family: var(--font-display, "Orbitron", sans-serif);
+    font-size: clamp(0.52rem, 0.72vw, 0.66rem);
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: rgba(var(--l3-accent-rgb), 0.42);
+    text-align: center;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+#level-3 .l3-scroll-anchor {
+    position: absolute;
+    left: 0;
+    width: 1px;
+    height: 24vh;
+    pointer-events: none;
+}
+#level-3 .l3-scroll-anchor--ch1 { top: 20%; }
+#level-3 .l3-scroll-anchor--ch2 { top: 39%; }
+#level-3 .l3-scroll-anchor--ch3-scene { top: 61%; }
+#level-3 .l3-scroll-anchor--ch3-mood { top: 68%; }
+#level-3 .l3-scroll-anchor--ch4 { top: 86%; }
+#level-3 .l3-scroll-anchor--ch4-final { top: 92%; }
 
 /* 主元素 · 屏幕正中心
    GSAP 用 xPercent/yPercent:-50 居中，再 scale；不在这里写 transform，
@@ -1624,14 +1661,25 @@ button { font: inherit; }
     will-change: transform, opacity;
 }
 
-/* 文案 · 屏幕底部居中
+/* 文案 · 屏幕中下区域（bottom 30% 拉高，与主/侧元素保持更舒适的距离）
    GSAP 用 xPercent:-50 + y 平移；line-height/字体见 HTML 内联样式 */
 #level-3:not([hidden]) .elem-caption-placeholder {
     position: absolute;
-    bottom: 9%;
+    bottom: var(--l3-text-bottom);
     left: 50%;
+    width: min(90vw, var(--l3-text-max-width));
+    max-width: var(--l3-text-max-width) !important;
+    text-align: center;
     pointer-events: none;
     will-change: transform, opacity;
+}
+#level-3:not([hidden]) .l3-s1-body {
+    font-size: clamp(1rem, 1.2vw, 1.18rem);
+    line-height: inherit;
+    color: inherit;
+    margin: 0;
+    text-indent: 0;
+    text-align: center;
 }
 
 
@@ -1664,8 +1712,16 @@ button { font: inherit; }
     gap: clamp(1.5rem, 3vh, 3rem);
     padding: 4vh 4vw;
     box-sizing: border-box;
-    opacity: 0;                 /* 由 level3.js 的 timeline 在 0.55→0.75 拉到 1 */
+    /* opacity:0 由 GSAP set(opacity:1) 覆盖；保留 0 作为骨架兜底（防 GSAP 没初始化时闪一下）*/
+    opacity: 0;
     pointer-events: none;
+    /* ★ 新增 overflow:hidden ——
+       OrbitImages 的 .orbit-container 内联 aspect-ratio:1/1 + max-width:1100px
+       会让容器在 1920×1080 屏上自然变成 1100×1100 正方形，比视口还高。
+       在不缩小轨道视觉的前提下，加 overflow:hidden 把超出视口的轨道空白剪掉，
+       并把 .focus-text-area 改成 absolute 钉在底部（见下方），就不会再因
+       flex 布局把文字顶到视口下面去了。 */
+    overflow: hidden;
 }
 
 /* ★ 与 stage-1 同样的"滚轮黑洞"防护：
@@ -1677,14 +1733,14 @@ button { font: inherit; }
     pointer-events: none;
 }
 
-/* —— 轨道区：OrbitImages + 主元素叠放 —— */
+/* —— 轨道区：absolute 铺满整屏并居中，微微上移，让轨道组视觉重心贴近屏幕中心 —— */
 #level-3:not([hidden]) .l3-orbit-area {
-    flex: 0 0 auto;
-    width: 100%;
+    position: absolute;
+    inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    position: relative;
+    transform: translateY(clamp(-2rem, -7vh, -0.75rem));
 }
 #level-3:not([hidden]) #l3-orbit-mount {
     width: 100%;
@@ -1713,12 +1769,12 @@ button { font: inherit; }
    注意：depth=true 时 centerContent 渲染在 .orbit-rotation-wrapper 内部，
    该层位于 baseWidth(1400px) 的设计空间里，会被 .orbit-scaling-container 的
    transform:scale(containerWidth/baseWidth) 一并缩放。
-   为了让最终视觉接近 180×280px，这里按 ~0.78 的典型缩放系数反推为 230×360
-   设计像素 —— 这样在 1100px 容器宽度下显示尺寸 ≈ 180×280px。
-   主元素与轨道一起随视口缩放，比例关系保持不变。 */
+   按 ~0.78 的典型缩放系数（1100px 容器宽度下）反推 320×500 设计像素 ——
+   实际显示约 250×390px，比早期占位明显更"撑得住"画面，与放大后的轨道
+   元素（itemSize 220 → 视觉 ~173px）保持视觉协调。 */
 #level-3:not([hidden]) .focus-element-placeholder {
-    width: 230px;
-    height: 360px;
+    width: 320px;
+    height: 500px;
     background: rgba(255, 255, 255, 0.18);
     border: 2px solid #fff;
     border-radius: 10px;
@@ -1729,21 +1785,39 @@ button { font: inherit; }
     font-family: var(--font-display);
     letter-spacing: 0.12em;
     font-size: clamp(0.8rem, 0.9vw, 1rem);
+    /* ↓ 轻微向下补偿，让主元素和轨道组共同落在视觉中心附近 ——
+       OrbitImages 在 depth=true 模式下用 absolute + translate(-50%,-50%) 把
+       centerContent 钉在轨道几何中心，这里只保留少量 translateY。
+       注意：transform 加在 .focus-element-placeholder 自身，不影响外层
+       .orbit-center-content--inline 的 z-index 和 depth 顺序。 */
+    transform: translateY(8px);
     /* 不需要 z-index：在 .orbit-rotation-wrapper 里它跟轨道项是兄弟，
-       由 OrbitImages 的 depth 逻辑把外层 .orbit-center-content--inline 设 z-index:0，
+       由 OrbitImages 的 depth 逻辑把外层 .orbit-center-content--inline 设 z-index:0,
        轨道项动态给 -10/10，自动形成 fake-3D 遮挡。 */
 }
 
-/* —— 文案区（轨道正下方，.l3-scene-2 直接子元素） —— */
+/* —— 文案区（轨道正下方，.l3-scene-2 直接子元素） ——
+   ★ 改为 absolute 定位钉在屏幕底部：
+     原来在 flex column 中跟 .l3-orbit-area 抢垂直空间，1100×1100 的轨道容器
+     一占就把文案顶出视口外，所以原来肉眼以为"第二屏没文字"。
+     现在 absolute 之后，轨道继续在 .l3-scene-2 中央居中，文案独立钉底。
+     GSAP 端用 xPercent:-50 + y 控位置（不依赖 CSS transform，避免被 GSAP
+     重写 transform 时冲掉居中）。 */
 #level-3:not([hidden]) .focus-text-area {
-    max-width: 720px;
+    position: absolute;
+    bottom: var(--l3-text-bottom);
+    left: 50%;
+    width: min(90vw, var(--l3-text-max-width));
+    max-width: var(--l3-text-max-width);
+    z-index: 2;
     text-align: center;
     color: rgba(234, 246, 255, 0.85);
     font-family: var(--font-mono);
     line-height: 1.7;
+    will-change: transform, opacity, filter;
 }
 #level-3:not([hidden]) .focus-text-area__title {
-    color: #7BF9F4;
+    color: rgba(var(--l3-accent-rgb), 0.9);
     margin: 0 0 0.6rem;
     font-family: var(--font-display);
     letter-spacing: 0.2em;
@@ -1751,5 +1825,180 @@ button { font: inherit; }
 }
 #level-3:not([hidden]) .focus-text-area__body {
     margin: 0;
-    font-size: clamp(0.85rem, 0.95vw, 1rem);
+    font-size: clamp(1rem, 1.2vw, 1.18rem);
+    line-height: 1.85;
+    text-align: center;
+    text-indent: 0;
+}
+
+
+/* ================================================================
+   O. Level 3 · Stage-3 · 全屏背景 + 文字在右侧居中
+   ----------------------------------------------------------------
+   结构：
+     .l3-scene-3                     绝对定位铺满屏，z-index:8（在 stage-2 之上）
+       ├─ .l3-bg-layer               全屏行星背景层
+       │    ├─ .l3-planet-bg         读取 #level-3 的 --l3-planet-image 变量铺图
+       │    └─ .l3-bg-shade          黑色半透明遮罩（这里偏右增强右侧文字可读性）
+       └─ .l3-s3-text-col            居中正文列（格式对齐 Stage-4）
+   ----------------------------------------------------------------
+   ★ yPercent:100 起始 → timeline 在 stage-2→3 hand-off 把它滑入；
+   ★ 所有内部元素 pointer-events:none，让滚轮事件穿透到 #scroll-manager-container；
+   ★ 配色保持低饱和、暗色调，呼应"毁灭"主题。
+   ================================================================ */
+#level-3:not([hidden]) .l3-scene-3 {
+    position: absolute;
+    inset: 0;
+    z-index: 8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4vh clamp(2rem, 6vw, 6rem);
+    box-sizing: border-box;
+    pointer-events: none;
+    overflow: hidden;
+    background: #000;                /* 防止滑入间隙时露出底色 */
+}
+#level-3:not([hidden]) .l3-scene-3 *,
+#level-3:not([hidden]) .l3-scene-4 * {
+    pointer-events: none;
+}
+
+/* —— 共用：全屏行星背景层（scene-3 / scene-4 同款骨架） —— */
+#level-3:not([hidden]) .l3-scene-3 .l3-bg-layer,
+#level-3:not([hidden]) .l3-scene-4 .l3-bg-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+}
+#level-3:not([hidden]) .l3-scene-3 .l3-planet-bg,
+#level-3:not([hidden]) .l3-scene-4 .l3-planet-bg {
+    position: absolute;
+    inset: 0;
+    background-image: var(--l3-planet-image, none);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    /* 死寂 / 灰烬感：低饱和度 + 偏暗，每颗行星都用同一份处理，
+       后面要换专属"毁灭后"贴图，只需替换源文件不动 CSS。 */
+    opacity: 0.32;
+    filter: saturate(0.45) brightness(0.55) contrast(1.05);
+}
+#level-3:not([hidden]) .l3-scene-4 .l3-planet-bg--dimmer {
+    opacity: 0.18;
+    filter: saturate(0.35) brightness(0.4) contrast(1.05) blur(0.5px);
+}
+
+/* 半透明遮罩 —— 在文字一侧增强可读性，不让背景压住文字。 */
+#level-3:not([hidden]) .l3-bg-shade {
+    position: absolute;
+    inset: 0;
+}
+#level-3:not([hidden]) .l3-bg-shade--right {
+    /* 保留备用：右侧文字布局时使用。当前 scene-3 使用 center shade。 */
+    background: linear-gradient(
+        to right,
+        rgba(0, 0, 0, 0.10) 0%,
+        rgba(0, 0, 0, 0.35) 45%,
+        rgba(0, 0, 0, 0.78) 100%
+    );
+}
+#level-3:not([hidden]) .l3-bg-shade--center {
+    /* scene-4：中央文字，从中央向四周淡出，让正文集中视觉 */
+    background: radial-gradient(
+        ellipse at center,
+        rgba(0, 0, 0, 0.85) 0%,
+        rgba(0, 0, 0, 0.65) 50%,
+        rgba(0, 0, 0, 0.45) 100%
+    );
+}
+
+#level-3:not([hidden]) .l3-s3-text-col {
+    position: relative;
+    z-index: 1;
+    width: min(90vw, var(--l3-text-max-width));
+    max-width: var(--l3-text-max-width);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    color: rgba(234, 246, 255, 0.85);
+    font-family: var(--font-mono, "Share Tech Mono", monospace);
+}
+#level-3:not([hidden]) .l3-chapter-label {
+    align-self: center;
+    font-family: var(--font-display, "Orbitron", sans-serif);
+    font-size: clamp(0.52rem, 0.72vw, 0.66rem);
+    letter-spacing: 0.4em;
+    color: rgba(var(--l3-accent-rgb), 0.42);
+    text-transform: uppercase;
+    text-align: center;
+    margin: 0 0 1.4rem;
+    white-space: nowrap;
+}
+#level-3:not([hidden]) .l3-s4-ch-label {
+    margin-bottom: 0;
+}
+#level-3:not([hidden]) .l3-s3-body,
+#level-3:not([hidden]) .l3-s4-body {
+    margin: 0;
+    font-family: var(--font-mono, "Share Tech Mono", monospace);
+    font-size: clamp(0.95rem, 1.4vw, 1.18rem);
+    line-height: 2.05;
+    color: rgba(234, 246, 255, 0.82);
+    text-indent: 0;
+    text-align: center;
+    will-change: opacity, transform, filter;
+}
+#level-3:not([hidden]) .l3-s4-body {
+    text-indent: 0;
+}
+#level-3:not([hidden]) .l3-s3-body--scene {
+    text-indent: 0;
+    text-align: center;
+}
+#level-3:not([hidden]) .l3-s3-body--mood {
+    text-indent: 0;
+    text-align: center;
+}
+
+
+/* ================================================================
+   P. Level 3 · Stage-4 · 全屏背景 + 中央正文（仿 L2 第一屏 body）
+   ----------------------------------------------------------------
+   结构：
+     .l3-scene-4                     绝对定位铺满屏，z-index:9（在 stage-3 之上）
+       ├─ .l3-bg-layer               全屏行星背景层（更暗 + radial 遮罩）
+      └─ .l3-s4-text-col            居中文字列（最大宽 ~52rem，水平 + 垂直居中）
+            └─ .l3-s4-body         三颗行星共用的"地球乡愁"正文段
+   ----------------------------------------------------------------
+   ★ 字号 / 行距 / 字色都参考 L2 .l2-reveal-text，让 L3 终章与 L2 章节在
+     文字气质上保持一致。
+   ★ 正文用 mono 字 + 加宽行距，营造慢节奏的"散文"感。
+   ================================================================ */
+#level-3:not([hidden]) .l3-scene-4 {
+    position: absolute;
+    inset: 0;
+    z-index: 9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4vh clamp(2rem, 6vw, 6rem);
+    box-sizing: border-box;
+    pointer-events: none;
+    overflow: hidden;
+    background: #000;
+}
+
+#level-3:not([hidden]) .l3-s4-text-col {
+    position: relative;
+    z-index: 1;
+    width: min(90vw, var(--l3-text-max-width));
+    max-width: var(--l3-text-max-width);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2.4rem;
+    text-align: center;
 }

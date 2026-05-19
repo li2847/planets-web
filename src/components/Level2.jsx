@@ -309,7 +309,7 @@ export default function Level2() {
           >
             <p className="l2-confirm-hint">{planet.tagline}</p>
             <button type="button" className="l2-confirm-btn" onClick={handleEnterLevel3}>
-              确认迁徙
+              几天后
             </button>
           </FadeContent>
 

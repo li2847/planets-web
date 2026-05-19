@@ -7,21 +7,20 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link 
+    <link
         href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=Orbitron:wght@500;700;800;900&family=Share+Tech+Mono&display=swap"
         rel="stylesheet"
     />
 
     <script>tailwind.config = { corePlugins: { preflight: false } }</script>
-    <script src="https://cdn.tailwindcss.com"></script>
-
-  <script type="module" crossorigin src="/assets/index-CifF0KUo.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-BxxtEdq3.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+  <script type="module" crossorigin src="/assets/index-BasWshGO.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-Bbn7f9DO.css">
 </head>
 <body>
     <div class="scene" id="scene">
-        <div class="stars-overlay" aria-hidden="true"></div>
-        
+        <!-- Galaxy starfield background (React-mounted via src/main.jsx) -->
+        <div class="galaxy-bg-root" id="galaxy-bg-root" aria-hidden="true"></div>
         <div class="nebula" aria-hidden="true"></div>
         <div class="vignette" aria-hidden="true"></div>
 
@@ -51,7 +50,7 @@
         <div class="planet-stage" id="planet-stage">
             <div class="planet__glow" aria-hidden="true"></div>
             <div class="planet__slot is-active" id="slot-a" data-slot="a">
-                <img class="planet__body" id="slot-a-img" src="/assets/KEPLER-452B-DXqKAZMo.png" alt="Kepler-452b" />
+                <img class="planet__body" id="slot-a-img" src="/assets/KEPLER-452B-BuIYfG-f.png" alt="Kepler-452b" />
             </div>
             <div class="planet__slot" id="slot-b" data-slot="b">
                 <img class="planet__body" id="slot-b-img" src="" alt="" />
@@ -60,10 +59,10 @@
 
         <!-- ========== 两侧邻星 · 贴屏幕左右下角 ========== -->
         <div class="side-planet side-planet--left" id="planet-left" aria-hidden="true">
-            <img id="planet-left-img" src="/assets/PROXIMA-CENTAURI-B-BGQ5iKlk.png" alt="" />
+            <img id="planet-left-img" src="/assets/PROXIMA-CENTAURI-B-keGKh7sW.png" alt="" />
         </div>
         <div class="side-planet side-planet--right" id="planet-right" aria-hidden="true">
-            <img id="planet-right-img" src="/assets/TOI-1452-B-Cg5ckxXC.png" alt="" />
+            <img id="planet-right-img" src="/assets/TOI-1452-B-Dmyu9DMp.png" alt="" />
         </div>
 
         <!-- ========== 标题（星球正上方）· 外层定位 + 内层动画 ========== -->
@@ -104,16 +103,101 @@
         <section id="level-2" class="narrative-level" hidden aria-hidden="true">
         </section>
         <section id="level-3" class="narrative-level" hidden aria-hidden="true">
-            <div class="narrative-level__inner">
-                <h2 class="narrative-level__title">第三幕</h2>
-                <p class="narrative-level__lead">预留章节。</p>
+            <!-- ========== 左上角返回按钮（始终可见，点击 → 退出 L3 并进入 L2）==========
+                 与 .l3-scene-2 / #scroll-manager-container 同级，z-index 高于两者
+                 (.l3-scene-2 = z:7, #scroll-manager-container = z:5)，确保可点击。 -->
+            <button type="button" id="l3-back-btn" class="l3-back-btn" aria-label="返回上一关">
+                ← 返回
+            </button>
+
+            <!-- ========== 滚动引擎 · 透明全屏滚动层（仅感应滚动，不挡视线）==========
+                 高度从 5000 → 10000：屏数从 2 屏扩到 4 屏，每屏 hand-off + dwell
+                 大约需要 ~2000px 滚动预算，10000 给四屏舒适的阅读 / 切换节奏。 -->
+            <div id="scroll-manager-container">
+                <div id="scroll-manager-fake-content" style="height: 10000px; position: relative;">
+                    <div id="l3-scroll-anchor-ch1" class="l3-scroll-anchor l3-scroll-anchor--ch1" aria-hidden="true"></div>
+                    <div id="l3-scroll-anchor-ch2" class="l3-scroll-anchor l3-scroll-anchor--ch2" aria-hidden="true"></div>
+                    <div id="l3-scroll-anchor-ch3-scene" class="l3-scroll-anchor l3-scroll-anchor--ch3-scene" aria-hidden="true"></div>
+                    <div id="l3-scroll-anchor-ch3-mood" class="l3-scroll-anchor l3-scroll-anchor--ch3-mood" aria-hidden="true"></div>
+                    <div id="l3-scroll-anchor-ch4" class="l3-scroll-anchor l3-scroll-anchor--ch4" aria-hidden="true"></div>
+                </div>
+            </div>
+
+            <!-- ========== Stage-1 · 三件占位元素（主 / 侧 / 文案，都绝对定位） ==========
+                 起始仅主元素可见；滚动到 50% 时侧栏完成滑入；滚动到末尾时文案出现。
+                 三者最终态共存于同一屏（主元素再缩一点给上下留空间）。
+            -->
+            <div class="stage-1-wrapper">
+                <p class="l3-corner-chapter">CHAPTER I · 死亡</p>
+                <!-- 主元素：屏幕正中心，初始尺寸 400 -->
+                <div class="elem-main-placeholder" style="width: 400px; height: 400px; background: rgba(255,255,255,0.2); border: 2px dashed #fff; display: flex; align-items: center; justify-content: center; color: #fff; font-family: var(--font-display); letter-spacing: 0.12em;">
+                    中间主元素
+                </div>
+
+                <!-- 侧栏：主元素右侧；起始 x:100、opacity:0；滚动时滑入并淡入 -->
+                <div class="elem-side-placeholder" style="width: 260px; height: 360px; background: rgba(123, 249, 244, 0.2); border: 2px dashed #7BF9F4; display: flex; align-items: center; justify-content: center; color: #7BF9F4; font-family: var(--font-display); letter-spacing: 0.12em; opacity: 0;">
+                    侧边占位
+                </div>
+
+                <!-- 文案：屏幕中下偏上（按用户要求"再靠上一点"，bottom 在 style.css 调到 22%）
+                     按用户要求第一屏不放标题，仅留正文一段；正文由 level3.js 在 show()
+                     里按 PLANETS[idx].narrativeL3.ch1 注入。
+                     字号比初版稍大（0.85→1.0 起步）让段落更"主体感"。-->
+                <div class="elem-caption-placeholder" style="max-width: 1080px; text-align: center; color: rgba(234, 246, 255, 0.88); font-family: var(--font-mono); line-height: 1.85; opacity: 0;"></div>
+            </div>
+
+            <!-- ========== Stage-2 · 轨道环绕主元素 + 文案 ==========
+                 整屏 opacity:0 起始，等以后挂滚动淡入；当前不参与 Stage-1 的时间轴。
+                 主元素 (.focus-element-placeholder) 由 main.jsx 通过 centerContent
+                 传入 OrbitImages，叠放在轨道正中心；文案区在轨道正下方。
+            -->
+            <div class="l3-scene-2" aria-hidden="true">
+                <p class="l3-corner-chapter">CHAPTER II · 腐败</p>
+                <!-- 轨道区：OrbitImages 挂载点，主元素通过 centerContent 绝对居中 -->
+                <div class="l3-orbit-area">
+                    <div id="l3-orbit-mount"></div>
+                </div>
+
+                <!-- 文案区（轨道正下方，不遮挡旋转效果）：只保留正文，
+                     由 Level3TextReveals React island 根据 planetIndex 渲染。 -->
+                <div class="focus-text-area"></div>
+            </div>
+
+            <!-- ========== Stage-3 · 第三屏：全屏背景 + 文字在右侧居中 ==========
+                 行星图作全屏背景（按 #level-3 上的 --l3-planet-image 变量铺图，
+                 由 level3.js 进入时根据 planetIndex 动态写入）。
+                 文字框靠右、垂直居中，包含章节标签 + 两段文案（场景 + 心情）。
+                 章节标签 / 段落文字由 Level3TextReveals React island 根据
+                 PLANETS[idx].narrativeL3 渲染。
+                 整屏初始 yPercent:100（在视口下方），由 timeline 在 stage-2→3
+                 的 hand-off 区间被滑入。 -->
+            <div class="l3-scene-3" aria-hidden="true">
+                <div class="l3-bg-layer" aria-hidden="true">
+                    <div class="l3-planet-bg"></div>
+                    <div class="l3-bg-shade l3-bg-shade--center"></div>
+                </div>
+
+                <div class="l3-s3-text-col"></div>
+            </div>
+
+            <!-- ========== Stage-4 · 第四屏：全屏背景 + 仅正文（仿 L2 第一屏 body）==========
+                 布局参考 Level 2 Screen 1 的 .l2-s1-body —— 中间一段正文，
+                 居中、字号偏大、行距宽松；这里去掉 chapter label / planet id /
+                 大字标题 / 滚动提示，只留正文。整屏全屏背景图仍用行星主图，
+                 但加更深的暗化遮罩（家乡之思 = 望向远处死寂之星的氛围）。 -->
+            <div class="l3-scene-4" aria-hidden="true">
+                <div class="l3-bg-layer" aria-hidden="true">
+                    <div class="l3-planet-bg l3-planet-bg--dimmer"></div>
+                    <div class="l3-bg-shade l3-bg-shade--center"></div>
+                </div>
+
+                <div class="l3-s4-text-col"></div>
             </div>
         </section>
 
         <div class="scanlines" aria-hidden="true"></div>
     </div>
 
-    <!-- Vite + React entry (GSAP loaded via npm inside src/main.jsx) -->
-
+    <!-- Vite + React entry (GSAP loaded via npm inside src/main.jsx) -->
 </body>
 </html>

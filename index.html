@@ -109,9 +109,18 @@
                 ← 返回
             </button>
 
-            <!-- ========== 滚动引擎 · 透明全屏滚动层（仅感应滚动，不挡视线）========== -->
+            <!-- ========== 滚动引擎 · 透明全屏滚动层（仅感应滚动，不挡视线）==========
+                 高度从 5000 → 10000：屏数从 2 屏扩到 4 屏，每屏 hand-off + dwell
+                 大约需要 ~2000px 滚动预算，10000 给四屏舒适的阅读 / 切换节奏。 -->
             <div id="scroll-manager-container">
-                <div id="scroll-manager-fake-content" style="height: 5000px;"></div>
+                <div id="scroll-manager-fake-content" style="height: 10000px; position: relative;">
+                    <div id="l3-scroll-anchor-ch1" class="l3-scroll-anchor l3-scroll-anchor--ch1" aria-hidden="true"></div>
+                    <div id="l3-scroll-anchor-ch2" class="l3-scroll-anchor l3-scroll-anchor--ch2" aria-hidden="true"></div>
+                    <div id="l3-scroll-anchor-ch3-scene" class="l3-scroll-anchor l3-scroll-anchor--ch3-scene" aria-hidden="true"></div>
+                    <div id="l3-scroll-anchor-ch3-mood" class="l3-scroll-anchor l3-scroll-anchor--ch3-mood" aria-hidden="true"></div>
+                    <div id="l3-scroll-anchor-ch4" class="l3-scroll-anchor l3-scroll-anchor--ch4" aria-hidden="true"></div>
+                    <div id="l3-scroll-anchor-ch4-final" class="l3-scroll-anchor l3-scroll-anchor--ch4-final" aria-hidden="true"></div>
+                </div>
             </div>
 
             <!-- ========== Stage-1 · 三件占位元素（主 / 侧 / 文案，都绝对定位） ==========
@@ -119,21 +128,22 @@
                  三者最终态共存于同一屏（主元素再缩一点给上下留空间）。
             -->
             <div class="stage-1-wrapper">
+                <p class="l3-corner-chapter">CHAPTER I · 死亡</p>
                 <!-- 主元素：屏幕正中心，初始尺寸 400 -->
                 <div class="elem-main-placeholder" style="width: 400px; height: 400px; background: rgba(255,255,255,0.2); border: 2px dashed #fff; display: flex; align-items: center; justify-content: center; color: #fff; font-family: var(--font-display); letter-spacing: 0.12em;">
                     中间主元素
                 </div>
 
                 <!-- 侧栏：主元素右侧；起始 x:100、opacity:0；滚动时滑入并淡入 -->
-                <div class="elem-side-placeholder" style="width: 260px; height: 360px; background: rgba(123, 249, 244, 0.2); border: 2px dashed #7BF9F4; display: flex; align-items: center; justify-content: center; color: #7BF9F4; font-family: var(--font-display); letter-spacing: 0.12em; opacity: 0;">
+                <div class="elem-side-placeholder" style="width: 260px; height: 360px; background: rgba(var(--l3-accent-rgb), 0.2); border: 2px dashed rgba(var(--l3-accent-rgb), 0.9); display: flex; align-items: center; justify-content: center; color: rgba(var(--l3-accent-rgb), 0.9); font-family: var(--font-display); letter-spacing: 0.12em; opacity: 0;">
                     侧边占位
                 </div>
 
-                <!-- 文案：屏幕下方，独立元素；起始 opacity:0；阶段 2 才出现 -->
-                <div class="elem-caption-placeholder" style="max-width: 720px; text-align: center; color: rgba(234, 246, 255, 0.85); font-family: var(--font-mono); line-height: 1.7; opacity: 0;">
-                    <h3 style="color: #7BF9F4; margin: 0 0 0.6rem; font-family: var(--font-display); letter-spacing: 0.2em; font-size: clamp(1rem, 1.2vw, 1.25rem);">文案标题占位</h3>
-                    <p style="margin: 0; font-size: clamp(0.85rem, 0.95vw, 1rem);">这里是未来的文案区域 —— 将放置该行星 Stage-1 的叙事文字，会随主元素与侧栏一起呈现在同一屏。</p>
-                </div>
+                <!-- 文案：屏幕中下偏上（按用户要求"再靠上一点"，bottom 在 style.css 调到 22%）
+                     按用户要求第一屏不放标题，仅留正文一段；正文由 level3.js 在 show()
+                     里按 PLANETS[idx].narrativeL3.ch1 注入。
+                     字号比初版稍大（0.85→1.0 起步）让段落更"主体感"。-->
+                <div class="elem-caption-placeholder" style="max-width: 1080px; text-align: center; color: rgba(234, 246, 255, 0.88); font-family: var(--font-mono); line-height: 1.85; opacity: 0;"></div>
             </div>
 
             <!-- ========== Stage-2 · 轨道环绕主元素 + 文案 ==========
@@ -142,16 +152,46 @@
                  传入 OrbitImages，叠放在轨道正中心；文案区在轨道正下方。
             -->
             <div class="l3-scene-2" aria-hidden="true">
+                <p class="l3-corner-chapter">CHAPTER II · 腐败</p>
                 <!-- 轨道区：OrbitImages 挂载点，主元素通过 centerContent 绝对居中 -->
                 <div class="l3-orbit-area">
                     <div id="l3-orbit-mount"></div>
                 </div>
 
-                <!-- 文案区（轨道正下方，不遮挡旋转效果） -->
-                <div class="focus-text-area">
-                    <h3 class="focus-text-area__title">[此处填写第二屏小标题...]</h3>
-                    <p class="focus-text-area__body">[此处填写详细描述文案...]</p>
+                <!-- 文案区（轨道正下方，不遮挡旋转效果）：只保留正文，
+                     由 Level3TextReveals React island 根据 planetIndex 渲染。 -->
+                <div class="focus-text-area"></div>
+            </div>
+
+            <!-- ========== Stage-3 · 第三屏：全屏背景 + 文字在右侧居中 ==========
+                 行星图作全屏背景（按 #level-3 上的 --l3-planet-image 变量铺图，
+                 由 level3.js 进入时根据 planetIndex 动态写入）。
+                 文字框靠右、垂直居中，包含章节标签 + 两段文案（场景 + 心情）。
+                 章节标签 / 段落文字由 Level3TextReveals React island 根据
+                 PLANETS[idx].narrativeL3 渲染。
+                 整屏初始 yPercent:100（在视口下方），由 timeline 在 stage-2→3
+                 的 hand-off 区间被滑入。 -->
+            <div class="l3-scene-3" aria-hidden="true">
+                <div class="l3-bg-layer" aria-hidden="true">
+                    <div class="l3-planet-bg"></div>
+                    <div class="l3-bg-shade l3-bg-shade--center"></div>
                 </div>
+
+                <div class="l3-s3-text-col"></div>
+            </div>
+
+            <!-- ========== Stage-4 · 第四屏：全屏背景 + 仅正文（仿 L2 第一屏 body）==========
+                 布局参考 Level 2 Screen 1 的 .l2-s1-body —— 中间一段正文，
+                 居中、字号偏大、行距宽松；这里去掉 chapter label / planet id /
+                 大字标题 / 滚动提示，只留正文。整屏全屏背景图仍用行星主图，
+                 但加更深的暗化遮罩（家乡之思 = 望向远处死寂之星的氛围）。 -->
+            <div class="l3-scene-4" aria-hidden="true">
+                <div class="l3-bg-layer" aria-hidden="true">
+                    <div class="l3-planet-bg l3-planet-bg--dimmer"></div>
+                    <div class="l3-bg-shade l3-bg-shade--center"></div>
+                </div>
+
+                <div class="l3-s4-text-col"></div>
             </div>
         </section>
 

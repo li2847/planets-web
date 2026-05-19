@@ -49,6 +49,7 @@ import Galaxy from './components/Galaxy/Galaxy';
 
 // Level 3 · Stage-2 React islands
 import OrbitImages from './components/OrbitImages';
+import Level3TextReveals from './components/Level3TextReveals';
 
 /* ── Helpers ─────────────────────────────────────────────────────────────── */
 
@@ -116,7 +117,7 @@ function mountLevel3OrbitImages() {
         radiusX={650}                             /* 横向再放宽，让轨道明显环绕长方形主元素 */
         radiusY={150}
         duration={50}
-        itemSize={150}
+        itemSize={220}                            /* 放大轨道占位图，与放大后的中心主元素保持比例 */
         rotation={0}
         responsive={true}
         showPath={true}
@@ -129,6 +130,34 @@ function mountLevel3OrbitImages() {
       />
     </React.StrictMode>
   );
+}
+
+/**
+ * Mount Level-3 narrative text as small React islands.
+ * The outer layout nodes stay in index.html so level3.js can keep controlling
+ * their position in the master scene timeline; React only owns the text reveal.
+ */
+function mountLevel3TextReveals() {
+  const slots = [
+    ['.elem-caption-placeholder', 'ch1'],
+    ['.focus-text-area', 'ch2'],
+    ['.l3-s3-text-col', 'ch3'],
+    ['.l3-s4-text-col', 'ch4'],
+  ];
+
+  slots.forEach(([selector, slot]) => {
+    const host = document.querySelector(`#level-3 ${selector}`);
+    if (!host) {
+      console.warn(`[main] Level 3 text host not found: ${selector}`);
+      return;
+    }
+
+    ReactDOM.createRoot(host).render(
+      <React.StrictMode>
+        <Level3TextReveals slot={slot} />
+      </React.StrictMode>
+    );
+  });
 }
 
 /**
@@ -233,6 +262,7 @@ whenReady(() => {
   //     boot: its parent .l3-scene-2 is opacity:0/pointer-events:none until
   //     the future Stage-2 scroll-enter animation reveals it.
   mountLevel3OrbitImages();
+  mountLevel3TextReveals();
 
   // 2. Boot the GSAP scene → returns the controller.
   const level1 = bootLevel1();

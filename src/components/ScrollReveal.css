@@ -3,12 +3,17 @@
 }
 
 .scroll-reveal-text {
+  display: block;
   font-size: clamp(1rem, 2.2vw, 1.6rem);
   line-height: 1.8;
   font-weight: 400;
   margin: 0;
+  color: inherit;
+  font-family: inherit;
+  white-space: pre-wrap;
 }
 
 .word {
   display: inline-block;
+  white-space: pre-wrap;
 }
