@@ -301,7 +301,7 @@ button { font: inherit; }
     object-fit: contain;
     animation: planet-spin 50s linear infinite;
     will-change: transform, filter;
-    backface-visibility: hidden;  /* 硬件加速，消除旋转重绘抖动 */
+    backface-visibility: hidden;  
     transform-style: preserve-3d;
 }
 .side-planet--left {

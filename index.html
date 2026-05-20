@@ -102,9 +102,7 @@
         <section id="level-2" class="narrative-level" hidden aria-hidden="true">
         </section>
         <section id="level-3" class="narrative-level" hidden aria-hidden="true">
-            <!-- ========== 左上角返回按钮（始终可见，点击 → 退出 L3 并进入 L2）==========
-                 与 .l3-scene-2 / #scroll-manager-container 同级，z-index 高于两者
-                 (.l3-scene-2 = z:7, #scroll-manager-container = z:5)，确保可点击。 -->
+
             <button type="button" id="l3-back-btn" class="l3-back-btn" aria-label="返回上一关">
                 ← 返回
             </button>
@@ -180,11 +178,7 @@
                 <div class="l3-s3-text-col"></div>
             </div>
 
-            <!-- ========== Stage-4 · 第四屏：全屏背景 + 仅正文（仿 L2 第一屏 body）==========
-                 布局参考 Level 2 Screen 1 的 .l2-s1-body —— 中间一段正文，
-                 居中、字号偏大、行距宽松；这里去掉 chapter label / planet id /
-                 大字标题 / 滚动提示，只留正文。整屏全屏背景图仍用行星主图，
-                 但加更深的暗化遮罩（家乡之思 = 望向远处死寂之星的氛围）。 -->
+
             <div class="l3-scene-4" aria-hidden="true">
                 <div class="l3-bg-layer" aria-hidden="true">
                     <div class="l3-planet-bg l3-planet-bg--dimmer"></div>

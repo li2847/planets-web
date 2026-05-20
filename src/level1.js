@@ -354,8 +354,6 @@ export function bootLevel1() {
             .map((def) => document.querySelector(def.sel))
             .filter(Boolean);
 
-        gsap.set(planetStage, { transformOrigin: "50% 50%" });
-
         lv2.removeAttribute("hidden");
         lv2.setAttribute("aria-hidden", "false");
         gsap.set(lv2, { opacity: 0 });
@@ -392,12 +390,8 @@ export function bootLevel1() {
             tl.to(el, { opacity: 0, x: def.x, y: def.y, duration: 0.9 }, i * 0.035);
         });
 
-        tl.fromTo(
-            planetStage,
-            { top: "93%", left: "50%", xPercent: -50, yPercent: -50, scale: 1, marginTop: 50 },
-            { top: "14%", left: "8%",  xPercent: -50, yPercent: -50, scale: 0.22, marginTop: 0, duration: 1.25, ease: "power3.inOut" },
-            0.05,
-        );
+        // 星球直接淡出消失，不再移动缩小
+        tl.to(planetStage, { opacity: 0, duration: 0.45, ease: "power2.in" }, 0);
 
         tl.to(lv2, { opacity: 1, duration: 0.95, ease: "power2.out" }, 0.32);
 
@@ -441,7 +435,7 @@ export function bootLevel1() {
                 // GSAP が書き込んだ top / left / transform / margin-top を全て消して
                 // CSS に完全に委ねる。これをしないと次回カルーセル操作時に
                 // lockPlanetStage() が x,y しか消さず位置がズレたままになる。
-                gsap.set(planetStage, { clearProps: "transform,top,left,marginTop" });
+                gsap.set(planetStage, { clearProps: "transform,top,left,marginTop,opacity" });
                 scatteredEls.forEach((el) => {
                     el.removeAttribute("aria-hidden");
                     el.style.pointerEvents = "";
@@ -452,11 +446,8 @@ export function bootLevel1() {
 
         tl.to(lv2, { opacity: 0, duration: 0.65, ease: "power2.in" }, 0);
 
-        tl.to(
-            planetStage,
-            { top: "93%", left: "50%", xPercent: -50, yPercent: -50, scale: 1, marginTop: 50, duration: 1.15, ease: "power3.inOut" },
-            0.06,
-        );
+        // 星球直接淡入出现，不再从角落飞回中央
+        tl.to(planetStage, { opacity: 1, duration: 0.55, ease: "power2.out" }, 0.55);
 
         LEVEL1_SCATTER_DEFS.forEach((def, i) => {
             const el = document.querySelector(def.sel);
