@@ -44,8 +44,8 @@
     --font-display: "Orbitron", system-ui, sans-serif;
     --font-mono:    "Share Tech Mono", ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace;
     --font-black:   "Swis721 Blk BT", "Arial Black", Impact, sans-serif;   /* 英文大黑 */
-    --font-cn-black:"SimHeiLocal", "SimHei", "Microsoft YaHei", sans-serif;/* 中文黑体 */
-    --font-cube:    "LCuboidBlack", "SimHei", "Microsoft YaHei", sans-serif;/* L立方黑 */
+    --font-cn-black:"SimHeiLocal", "Noto Sans SC", "SimHei", "Microsoft YaHei", sans-serif;/* 中文黑体 */
+    --font-cube:    "LCuboidBlack", "Noto Sans SC", "SimHei", "Microsoft YaHei", sans-serif;/* L立方黑 */
 
     /* Type scale · 1920 设计稿基准 */
     --fs-brand-title: clamp(1.0625rem, 1.25vw, 1.5rem);

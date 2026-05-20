@@ -438,6 +438,10 @@ export function bootLevel1() {
                 planetStage.classList.remove("is-level2-anchor");
                 planetStage.style.zIndex        = "";
                 planetStage.style.pointerEvents = "";
+                // GSAP が書き込んだ top / left / transform / margin-top を全て消して
+                // CSS に完全に委ねる。これをしないと次回カルーセル操作時に
+                // lockPlanetStage() が x,y しか消さず位置がズレたままになる。
+                gsap.set(planetStage, { clearProps: "transform,top,left,marginTop" });
                 scatteredEls.forEach((el) => {
                     el.removeAttribute("aria-hidden");
                     el.style.pointerEvents = "";
