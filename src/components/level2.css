@@ -228,13 +228,14 @@
 }
 
 /* ================================================================
-   SCREENS 2 & 3 · Parallax background + image + narrative
+   SCREENS 1 & 4 · Per-section full-bleed background (GSAP parallax)
+   SCREENS 2 + 3 · Shared seamless BG wrapper (natural scroll)
    ================================================================ */
 
 /*
- * Full-bleed planet image layer — z-index 0, behind .l2-content-col.
- * inset: -12% 0 gives the GSAP parallax (±14%) room to move without
- * revealing an empty edge. Clipped by parent's overflow:hidden.
+ * Full-bleed planet image layer — z-index 0, behind content.
+ * inset: -12% 0 gives GSAP parallax (±14%) room with no empty edge.
+ * Used by Screen 1 (PAGE1.png) and Screen 4 (PAGE4.png).
  */
 .l2-bg-layer {
     position: absolute;
@@ -243,7 +244,7 @@
     pointer-events: none;
 }
 .l2-bg-layer--dimmer .l2-planet-bg {
-    opacity: 0.09;
+    opacity: 0.18;
 }
 .l2-planet-bg {
     width: 100%;
@@ -251,9 +252,49 @@
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    opacity: 0.14;
-    /* per-planet filter applied via CSS variable */
+    opacity: 0.22;
     filter: var(--l2-planet-filter, saturate(0.45) blur(1px));
+}
+/* Slightly more vivid for the PAGE images (real illustrated art) */
+.l2-planet-bg--vivid {
+    opacity: 0.32;
+    filter: saturate(1.1) blur(0.5px);
+}
+
+/*
+ * .l2-s23-wrap — shared wrapper for Screens 2 and 3.
+ * BG.png is placed here ONCE and spans the full combined height of
+ * both child sections so the user sees a single uninterrupted starfield
+ * as they scroll from Chapter II to Chapter III.
+ */
+.l2-s23-wrap {
+    position: relative;
+    background-size: cover;
+    background-position: center top;
+    background-repeat: no-repeat;
+    background-attachment: scroll;
+}
+/* Sections inside the shared wrapper must be transparent */
+.l2-s23-wrap .l2-section {
+    background: transparent;
+}
+/* Subtle dark gradient overlay so text remains readable */
+.l2-s23-wrap::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.42) 0%,
+        rgba(0, 0, 0, 0.28) 50%,
+        rgba(0, 0, 0, 0.52) 100%
+    );
+    pointer-events: none;
+    z-index: 0;
+}
+/* Content columns inside the wrapper must sit above the overlay */
+.l2-s23-wrap .l2-content-col {
+    z-index: 1;
 }
 
 .l2-s2,
@@ -293,9 +334,33 @@
 }
 
 /*
- * Image placeholder: 60vh (3/4 of the previous 80vh) — tall enough to
- * anchor the chapter mood while leaving the narrative text visible sooner.
- * Sections use min-height: 100vh so they expand naturally to fit.
+ * Real illustration image — replaces the old grey placeholder.
+ * 60vh tall, object-fit:contain keeps artwork aspect ratio.
+ * Sections use min-height:100vh so they expand naturally to fit.
+ *
+ * Shadow strategy: filter:drop-shadow traces the true alpha contour
+ * of the artwork so transparent/cutout edges get no shadow bleed.
+ * Three layered drop-shadows build depth:
+ *   1. tight dark base    — grounds the subject
+ *   2. wide diffuse dark  — gives atmospheric depth
+ *   3. accent glow        — sci-fi atmosphere tint
+ * border-radius and box-shadow are intentionally removed.
+ */
+.l2-content-img {
+    display: block;
+    width: 56vw;
+    max-width: 100%;
+    height: 60vh;
+    object-fit: contain;
+    filter:
+        drop-shadow(0 4px 12px rgba(0, 0, 0, 0.85))
+        drop-shadow(0 12px 40px rgba(0, 0, 0, 0.60))
+        drop-shadow(0 0  28px rgba(var(--l2-accent-rgb), 0.30));
+}
+
+/*
+ * Keep the old placeholder class so existing references don't break;
+ * it can be removed once all consumers use .l2-content-img.
  */
 .l2-img-placeholder {
     width: 56vw;

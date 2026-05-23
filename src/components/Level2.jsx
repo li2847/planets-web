@@ -36,8 +36,8 @@ export default function Level2() {
   const [planetIndex, setPlanetIndex] = useState(0);
   const [key, setKey]                 = useState(0);
 
-  const planet        = PLANETS[planetIndex];
-  const { narrative } = planet;
+  const planet              = PLANETS[planetIndex];
+  const { narrative, level2Images } = planet;
 
   // ── Reset scroll + refresh ScrollTriggers after sections remount ──────────
   useEffect(() => {
@@ -47,15 +47,18 @@ export default function Level2() {
     return () => cancelAnimationFrame(raf);
   }, [key]);
 
-  // ── Background parallax (screens 2 & 3) ──────────────────────────────────
-  // Background image moves at ~30% of scroll speed to create depth.
-  // .l2-bg-layer has inset:-12% so there is always headroom — no empty edge.
+  // ── Background parallax (screens 1 & 4 only) ─────────────────────────────
+  // Screens 2+3 share a single seamless BG wrapper — no per-section parallax
+  // there so the image scrolls as one continuous starfield.
+  // .l2-bg-layer has inset:-12% so GSAP parallax (±14%) has no empty-edge.
   useEffect(() => {
     const wrap = wrapRef.current;
     if (!wrap) return;
 
     const kills = [];
-    wrap.querySelectorAll('.l2-planet-bg').forEach((bg) => {
+    // Only parallax the bg layers that live directly inside a .l2-section
+    // (i.e., s1 and s4). The shared .l2-s23-wrap BG is excluded on purpose.
+    wrap.querySelectorAll('.l2-section > .l2-bg-layer .l2-planet-bg').forEach((bg) => {
       const section = bg.closest('.l2-section');
       if (!section) return;
       kills.push(
@@ -139,13 +142,15 @@ export default function Level2() {
 
       {/* ── SCREEN 1 · Chapter I label → Planet ID → Float title → Body ──────
        *
-       *  Chapter label sits at the very top of the inner column so it reads
-       *  before any hero text, giving immediate narrative context.
-       *
+       *  Full-bleed PAGE1.png landscape behind the text (parallax via GSAP).
        *  Entrance: FadeContent blur=true fades the whole section on open.
        *  Body text: .l2-s1-body CSS animation slides up independently.
        */}
       <section className="l2-section l2-s1" key={`s1-${key}`}>
+        <div className="l2-bg-layer" aria-hidden="true">
+          <div className="l2-planet-bg l2-planet-bg--vivid"
+               style={{ backgroundImage: `url(${level2Images.page1})` }} />
+        </div>
         <FadeContent
           duration={900}
           threshold={0.05}
@@ -182,103 +187,113 @@ export default function Level2() {
         </FadeContent>
       </section>
 
-      {/* ── SCREEN 2 · Chapter II · image + narrative ────────────────────────
+      {/* ── SCREENS 2 + 3 · Shared seamless BG wrapper ───────────────────────
        *
-       *  ScrollReveal: wordAnimationEnd="top 80%" — animation completes once
-       *  the text's top edge is at 80% from viewport top, which is reached
-       *  sooner after the shorter (60vh) image, so the blur clears earlier.
-       *  AnimatedContent: distance 22, duration 1.3 for cinematic rise.
+       *  BG.png is set ONCE on the outer .l2-s23-wrap and spans the full
+       *  combined height of both sections — user scrolls through a single
+       *  continuous starfield with no seam or repeat.
+       *
+       *  Screen 2: PAGE2.png ecology illustration (object-fit:contain)
+       *  Screen 3: PAGE3.png crisis  illustration  (object-fit:contain)
        */}
-      <section className="l2-section l2-s2" key={`s2-${key}`}>
-        <div className="l2-bg-layer" aria-hidden="true">
-          <div className="l2-planet-bg" style={{ backgroundImage: `url(${planet.image})` }} />
-        </div>
+      <div className="l2-s23-wrap" style={{ backgroundImage: `url(${level2Images.bg})` }}>
 
-        <div className="l2-content-col">
-          <p className="l2-chapter-label">
-            CHAPTER&nbsp;Ⅱ&nbsp;·&nbsp;{narrative.ch2Label}
-          </p>
+        <section className="l2-section l2-s2" key={`s2-${key}`}>
+          <div className="l2-content-col">
+            <p className="l2-chapter-label">
+              CHAPTER&nbsp;Ⅱ&nbsp;·&nbsp;{narrative.ch2Label}
+            </p>
 
-          <AnimatedContent
-            distance={22}
-            direction="vertical"
-            duration={1.3}
-            ease="power3.out"
-            initialOpacity={0}
-            animateOpacity
-            scale={0.98}
-            threshold={0.1}
-            delay={0.08}
-            className="l2-image-wrap"
-          >
-            <div className="l2-img-placeholder bg-gray-800 rounded-lg" />
-          </AnimatedContent>
+            <AnimatedContent
+              distance={22}
+              direction="vertical"
+              duration={1.3}
+              ease="power3.out"
+              initialOpacity={0}
+              animateOpacity
+              scale={0.98}
+              threshold={0.1}
+              delay={0.08}
+              className="l2-image-wrap"
+            >
+              <img
+                className="l2-content-img"
+                src={level2Images.page2}
+                alt={`${planet.id} — Chapter II`}
+              />
+            </AnimatedContent>
 
-          <ScrollReveal
-            scrollContainerRef={wrapRef}
-            enableBlur
-            baseOpacity={0}
-            baseRotation={3}
-            blurStrength={10}
-            scrub={1.5}
-            rotationEnd="top 80%"
-            wordAnimationStart="top bottom+=8%"
-            wordAnimationEnd="top 80%"
-            textClassName="l2-reveal-text"
-          >
-            {narrative.ch2}
-          </ScrollReveal>
-        </div>
-      </section>
+            <ScrollReveal
+              scrollContainerRef={wrapRef}
+              enableBlur
+              baseOpacity={0}
+              baseRotation={3}
+              blurStrength={10}
+              scrub={1.5}
+              rotationEnd="top 80%"
+              wordAnimationStart="top bottom+=8%"
+              wordAnimationEnd="top 80%"
+              textClassName="l2-reveal-text"
+            >
+              {narrative.ch2}
+            </ScrollReveal>
+          </div>
+        </section>
 
-      {/* ── SCREEN 3 · Chapter III · image + narrative ───────────────────────── */}
-      <section className="l2-section l2-s3" key={`s3-${key}`}>
-        <div className="l2-bg-layer l2-bg-layer--dimmer" aria-hidden="true">
-          <div className="l2-planet-bg" style={{ backgroundImage: `url(${planet.image})` }} />
-        </div>
+        <section className="l2-section l2-s3" key={`s3-${key}`}>
+          <div className="l2-content-col">
+            <p className="l2-chapter-label">
+              CHAPTER&nbsp;Ⅲ&nbsp;·&nbsp;{narrative.ch3Label}
+            </p>
 
-        <div className="l2-content-col">
-          <p className="l2-chapter-label">
-            CHAPTER&nbsp;Ⅲ&nbsp;·&nbsp;{narrative.ch3Label}
-          </p>
+            <AnimatedContent
+              distance={22}
+              direction="vertical"
+              duration={1.3}
+              ease="power3.out"
+              initialOpacity={0}
+              animateOpacity
+              scale={0.98}
+              threshold={0.1}
+              delay={0.08}
+              className="l2-image-wrap"
+            >
+              <img
+                className="l2-content-img"
+                src={level2Images.page3}
+                alt={`${planet.id} — Chapter III`}
+              />
+            </AnimatedContent>
 
-          <AnimatedContent
-            distance={22}
-            direction="vertical"
-            duration={1.3}
-            ease="power3.out"
-            initialOpacity={0}
-            animateOpacity
-            scale={0.98}
-            threshold={0.1}
-            delay={0.08}
-            className="l2-image-wrap"
-          >
-            <div className="l2-img-placeholder bg-gray-800 rounded-lg" />
-          </AnimatedContent>
+            <ScrollReveal
+              scrollContainerRef={wrapRef}
+              enableBlur
+              baseOpacity={0}
+              baseRotation={-3}
+              blurStrength={10}
+              scrub={1.5}
+              rotationEnd="top 80%"
+              wordAnimationStart="top bottom+=8%"
+              wordAnimationEnd="top 80%"
+              textClassName="l2-reveal-text"
+            >
+              {narrative.ch3}
+            </ScrollReveal>
+          </div>
+        </section>
 
-          <ScrollReveal
-            scrollContainerRef={wrapRef}
-            enableBlur
-            baseOpacity={0}
-            baseRotation={-3}
-            blurStrength={10}
-            scrub={1.5}
-            rotationEnd="top 80%"
-            wordAnimationStart="top bottom+=8%"
-            wordAnimationEnd="top 80%"
-            textClassName="l2-reveal-text"
-          >
-            {narrative.ch3}
-          </ScrollReveal>
-        </div>
-      </section>
+      </div>{/* /l2-s23-wrap */}
 
       {/* ── SCREEN 4 · Chapter IV · Closing narrative + confirm ───────────────
        *
+       *  Full-bleed PAGE4.png as background (parallax via GSAP).
        *  ScrollReveal on ch4 text. The button fades in via FadeContent.
        */}
       <section className="l2-section l2-s4" key={`s4-${key}`}>
+        <div className="l2-bg-layer l2-bg-layer--dimmer" aria-hidden="true">
+          <div className="l2-planet-bg l2-planet-bg--vivid"
+               style={{ backgroundImage: `url(${level2Images.page4})` }} />
+        </div>
         <div className="l2-confirm-col">
 
           <p className="l2-chapter-label l2-s4-ch-label">

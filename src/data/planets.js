@@ -43,8 +43,18 @@ export const PLANETS = [
         title: "THE ELDER COUSIN",
         tagline: "翡翠色的交响森林",
         image: "images/KEPLER-452B.png",
+        targetImage: "images/KEPLER-452B-TARGET.png",
+        // 中央 UI 瞄准框的单独微调：scale=尺寸，offsetX/offsetY=相对星球中心偏移(px)
+        // 你觉得“地球表哥太奇怪”就在这里单独改这三个值即可。
+        targetFrame: { scale: 0.66, offsetX: 40, offsetY: -125 },
+        level2Images: {
+            page1: "images/level2/KEPLER-452B/PAGE1.png",
+            page2: "images/level2/KEPLER-452B/PAGE2.png",
+            page3: "images/level2/KEPLER-452B/PAGE3.png",
+            page4: "images/level2/KEPLER-452B/PAGE4.png",
+            bg:    "images/level2/KEPLER-452B/BG.png",
+        },
         planetTheme: "kepler",
-        glowBg: "radial-gradient(circle at center, rgba(37,244,238,0.35) 0%, rgba(37,244,238,0.15) 35%, rgba(37,244,238,0.05) 55%, transparent 70%)",
         rippleColor: "rgba(37,244,238,0.75)",
         coords: [
             { k: "RA",            v: "19h 44m 00.9s (296.0037°) | 赤经" },
@@ -87,8 +97,16 @@ export const PLANETS = [
         title: "THE OCEAN WORLD",
         tagline: "深蓝色的极光之海",
         image: "images/TOI-1452-B.png",
+        targetImage: "images/TOI-1452-B-TARGET.png",
+        targetFrame: { scale: 0.80, offsetX: 0, offsetY: 0 },
+        level2Images: {
+            page1: "images/level2/TOI-1452B/PAGE1.png",
+            page2: "images/level2/TOI-1452B/PAGE2.png",
+            page3: "images/level2/TOI-1452B/PAGE3.png",
+            page4: "images/level2/TOI-1452B/PAGE4.png",
+            bg:    "images/level2/TOI-1452B/BG.png",
+        },
         planetTheme: "toi",
-        glowBg: "radial-gradient(circle at center, rgba(100,190,255,0.35) 0%, rgba(100,190,255,0.15) 35%, rgba(100,190,255,0.05) 55%, transparent 70%)",
         rippleColor: "rgba(100,190,255,0.75)",
         coords: [
             { k: "RA",            v: "19h 20m 59.6s (290.2483°) | 赤经" },
@@ -131,8 +149,16 @@ export const PLANETS = [
         title: "THE NEAREST NEIGHBOR",
         tagline: "琥珀色的永恒午后",
         image: "images/PROXIMA-CENTAURI-B.png",
+        targetImage: "images/PROXIMA-CENTAURI-B-TARGET.png",
+        targetFrame: { scale: 0.79, offsetX: 0, offsetY: -20 },
+        level2Images: {
+            page1: "images/level2/PROXIMA-CENTAURI-B/PAGE1.png",
+            page2: "images/level2/PROXIMA-CENTAURI-B/PAGE2.png",
+            page3: "images/level2/PROXIMA-CENTAURI-B/PAGE3.png",
+            page4: "images/level2/PROXIMA-CENTAURI-B/PAGE4.png",
+            bg:    "images/level2/PROXIMA-CENTAURI-B/BG.png",
+        },
         planetTheme: "proxima",
-        glowBg: "radial-gradient(circle at center, rgba(255,100,50,0.35) 0%, rgba(255,100,50,0.15) 35%, rgba(255,100,50,0.05) 55%, transparent 70%)",
         rippleColor: "rgba(255,110,60,0.75)",
         coords: [
             { k: "RA",            v: "14h 29m 42.9s (217.4289°) | 赤经" },

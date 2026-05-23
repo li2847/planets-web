@@ -72,10 +72,19 @@ export function bootLevel1() {
     const planetRight     = document.getElementById("planet-right");
     const planetLeftImg   = document.getElementById("planet-left-img");
     const planetRightImg  = document.getElementById("planet-right-img");
+    const planetLeftTargetImg  = document.getElementById("planet-left-target-img");
+    const planetRightTargetImg = document.getElementById("planet-right-target-img");
 
     const btnPrev = document.getElementById("btn-prev");
     const btnNext = document.getElementById("btn-next");
     const glowEl  = document.querySelector(".planet__glow");
+
+    /* 行星专属 UI 瞄准框（双槽位）——
+       target-a 跟 slot-a，target-b 跟 slot-b。切换时各自跟着各自星球走。 */
+    const targetA    = document.getElementById("target-a");
+    const targetB    = document.getElementById("target-b");
+    const targetAImg = document.getElementById("target-a-img");
+    const targetBImg = document.getElementById("target-b-img");
 
     if (!scene || !planetStage || !slotA || !slotB) {
         console.warn(
@@ -90,8 +99,8 @@ export function bootLevel1() {
     /* ── State ──────────────────────────────────────────────────────────── */
     const state = {
         index: 0,
-        active:   { slot: slotA, img: slotAImg },
-        incoming: { slot: slotB, img: slotBImg },
+        active:   { slot: slotA, img: slotAImg, target: targetA, targetImg: targetAImg },
+        incoming: { slot: slotB, img: slotBImg, target: targetB, targetImg: targetBImg },
         isAnimating: false,
         tl: null,
         narrativeLevel: 1,
@@ -178,13 +187,41 @@ export function bootLevel1() {
         const next = PLANETS[(currentIndex + 1) % n];
         planetLeftImg.src  = prev.image;
         planetRightImg.src = next.image;
+        setTargetImage(planetLeftTargetImg, prev);
+        setTargetImage(planetRightTargetImg, next);
     }
 
     function preload() {
         PLANETS.forEach((p) => {
             const img = new Image();
             img.src = p.image;
+            if (p.targetImage) {
+                const tImg = new Image();
+                tImg.src = p.targetImage;
+            }
         });
+    }
+
+    /* 设置某个槽位 target 的图片 */
+    function setTargetImage(targetImgEl, planet) {
+        if (!targetImgEl) return;
+        const src = planet?.targetImage || "";
+        if (src && targetImgEl.getAttribute("src") !== src) {
+            targetImgEl.src = src;
+        }
+    }
+
+    /* 给某个槽位 target 写入个体参数（尺寸 + 中心偏移） */
+    function applyTargetFrame(targetEl, planet) {
+        const inner = targetEl?.querySelector(".planet__target-inner");
+        if (!inner) return;
+        const cfg = planet?.targetFrame || {};
+        const scale = Number.isFinite(cfg.scale) ? cfg.scale : 0.8;
+        const offsetX = Number.isFinite(cfg.offsetX) ? cfg.offsetX : 0;
+        const offsetY = Number.isFinite(cfg.offsetY) ? cfg.offsetY : 0;
+        inner.style.setProperty("--target-scale", String(scale));
+        inner.style.setProperty("--target-offset-x", `${offsetX}px`);
+        inner.style.setProperty("--target-offset-y", `${offsetY}px`);
     }
 
     /* ── Intro animation ────────────────────────────────────────────────── */
@@ -192,6 +229,10 @@ export function bootLevel1() {
         lockPlanetStage();
         gsap.set([slotA, slotB], { x: 0, y: 0, scale: 1, rotation: 0, opacity: 0, filter: "blur(0px)" });
         gsap.set(slotA, { opacity: 1 });
+
+        /* 瞄准框：起始隐藏 + 缩到 0.72，跟随主星球一起放大淡入 */
+        if (state.active.target) gsap.set(state.active.target, { opacity: 0, scale: 0.72 });
+        if (state.incoming.target) gsap.set(state.incoming.target, { opacity: 0, scale: 0.2 });
 
         const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
@@ -209,6 +250,13 @@ export function bootLevel1() {
               ease: "back.out(1.3)",
           }, 0.7)
           .from(".nav-btn", { opacity: 0, y: 14, duration: 0.5, stagger: 0.08 }, 1.0);
+
+        /* 瞄准框入场（紧跟主星球的节奏） */
+        if (state.active.target) {
+            tl.to(state.active.target, {
+                opacity: 1, scale: 1, duration: 1.0, ease: "power3.out",
+            }, 0.55);
+        }
     }
 
     /* ── Carousel switch ────────────────────────────────────────────────── */
@@ -233,6 +281,8 @@ export function bootLevel1() {
         scene.classList.add("is-switching");
 
         state.incoming.img.src = nextPlanet.image;
+        setTargetImage(state.incoming.targetImg, nextPlanet);
+        applyTargetFrame(state.incoming.target, nextPlanet);
         gsap.set(state.incoming.slot, {
             x: sign * ww * 0.62,
             y: 0,
@@ -242,13 +292,27 @@ export function bootLevel1() {
             filter: "blur(14px)",
         });
         state.incoming.slot.classList.add("is-active");
+        state.incoming.target?.classList.add("is-active");
+        gsap.set(state.incoming.target, {
+            x: sign * ww * 0.62,
+            y: 0,
+            scale: 0.2,
+            rotation: 0,
+            opacity: 1,
+            filter: "blur(14px)",
+        });
 
         const tl = gsap.timeline({
             defaults: { ease: "power3.inOut" },
             onComplete: () => {
                 lockPlanetStage();
                 state.active.slot.classList.remove("is-active");
+                state.active.target?.classList.remove("is-active");
                 gsap.set(state.active.slot, {
+                    x: 0, y: 0, scale: 1, rotation: 0,
+                    opacity: 0, filter: "blur(0px)",
+                });
+                gsap.set(state.active.target, {
                     x: 0, y: 0, scale: 1, rotation: 0,
                     opacity: 0, filter: "blur(0px)",
                 });
@@ -289,9 +353,43 @@ export function bootLevel1() {
             duration: 1.1,
             ease: "power2.inOut",
         }, 0);
+        tl.to(state.active.target, {
+            motionPath: {
+                path: [
+                    { x: 0,                 y: 0 },
+                    { x: -sign * ww * 0.26, y: 0 },
+                    { x: -sign * ww * 0.66, y: 0 },
+                ],
+                curviness: 1.5,
+                autoRotate: false,
+            },
+            scale: 0.2,
+            rotation: 0,
+            opacity: 0,
+            filter: "blur(12px)",
+            duration: 1.1,
+            ease: "power2.inOut",
+        }, 0);
 
         /* 2C. Incoming planet enters */
         tl.to(state.incoming.slot, {
+            motionPath: {
+                path: [
+                    { x: sign * ww * 0.62, y: 0 },
+                    { x: sign * ww * 0.24, y: 0 },
+                    { x: 0,                y: 0 },
+                ],
+                curviness: 1.5,
+                autoRotate: false,
+            },
+            scale: 1,
+            rotation: 0,
+            opacity: 1,
+            filter: "blur(0px)",
+            duration: 1.05,
+            ease: "power3.out",
+        }, 0.32);
+        tl.to(state.incoming.target, {
             motionPath: {
                 path: [
                     { x: sign * ww * 0.62, y: 0 },
@@ -337,6 +435,7 @@ export function bootLevel1() {
             { opacity: 0.95, scale: 1, filter: "blur(0px)", duration: 0.65, stagger: 0.08, ease: "power3.out", clearProps: "filter" },
             0.75,
         );
+
     }
 
     /* ── Level transition: Level 1 → Level 2 ───────────────────────────── */
@@ -486,6 +585,8 @@ export function bootLevel1() {
     writeTextFor(PLANETS[0]);
     updateSidePlanets(0);
     glowEl.style.background = PLANETS[0].glowBg;
+    setTargetImage(state.active.targetImg, PLANETS[0]);            /* 初始 active 星球 */
+    applyTargetFrame(state.active.target, PLANETS[0]);
     intro();
 
     /* ── Public controller (wired by main.jsx to the DOM buttons) ───────── */

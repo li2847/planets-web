@@ -284,6 +284,58 @@ button { font: inherit; }
     to   { transform: rotate(360deg); }
 }
 
+/* ----------------------------------------------------------------
+   · 行星专属 UI 瞄准框 ·
+   - .planet__target        外层；和 slot 同级，永远水平不旋转
+                            （GSAP 写入 scale + opacity，跟随入场/离场星球同步缩放）
+   - .planet__target-inner  内层；CSS 无限呼吸 scale(1)↔scale(1.05)
+                            （独立于 GSAP 的外层 transform，永不停）
+   ---------------------------------------------------------------- */
+.planet__target {
+    position: absolute;
+    inset: 0;
+    z-index: 3;                     /* 在 slot(1) 与 glow(0) 之上 */
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;                     /* 初始隐藏，由 JS 入场时淡入 */
+    transform-origin: center center;
+    will-change: transform, opacity;
+}
+.planet__target.is-active {
+    opacity: 1;
+}
+.planet__target-inner {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* 每颗星球的个性尺寸/偏移由 JS 写到这些 CSS 变量 */
+    --target-scale: 0.8;
+    --target-offset-x: 0px;
+    --target-offset-y: 0px;
+    transform-origin: center center;
+    animation: target-breathe 3.5s ease-in-out infinite;
+    will-change: transform;
+}
+.planet__target-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+@keyframes target-breathe {
+    0%, 100% {
+        transform: translate(var(--target-offset-x), var(--target-offset-y)) scale(var(--target-scale));
+    }
+    50% {
+        transform: translate(var(--target-offset-x), var(--target-offset-y)) scale(calc(var(--target-scale) * 1.03));
+    }
+}
+
 /* ================================================================
    C. 两侧邻星 · 绝对定位贴屏幕左右下角
    ================================================================ */
@@ -303,6 +355,30 @@ button { font: inherit; }
     will-change: transform, filter;
     backface-visibility: hidden;  
     transform-style: preserve-3d;
+}
+.side-planet__target {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 2;
+}
+.side-planet__target-inner {
+    width: 80%;
+    height: 80%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: target-breathe 4s ease-in-out infinite;
+}
+.side-planet__target-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    user-select: none;
+    -webkit-user-drag: none;
 }
 .side-planet--left {
     left: -8%;

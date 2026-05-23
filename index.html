@@ -54,14 +54,38 @@
             <div class="planet__slot" id="slot-b" data-slot="b">
                 <img class="planet__body" id="slot-b-img" src="" alt="" />
             </div>
+            <!--
+              · 行星专属 UI 瞄准框（双槽位）·
+              每个 slot 都有自己的 target，切换时各自跟随各自星球移动。
+            -->
+            <div class="planet__target" id="target-a" data-target="a" aria-hidden="true">
+                <div class="planet__target-inner">
+                    <img class="planet__target-img" id="target-a-img" src="" alt="" />
+                </div>
+            </div>
+            <div class="planet__target" id="target-b" data-target="b" aria-hidden="true">
+                <div class="planet__target-inner">
+                    <img class="planet__target-img" id="target-b-img" src="" alt="" />
+                </div>
+            </div>
         </div>
 
         <!-- ========== 两侧邻星 · 贴屏幕左右下角 ========== -->
         <div class="side-planet side-planet--left" id="planet-left" aria-hidden="true">
             <img id="planet-left-img" src="images/PROXIMA-CENTAURI-B.png" alt="" />
+            <div class="side-planet__target" id="planet-left-target" aria-hidden="true">
+                <div class="side-planet__target-inner">
+                    <img class="side-planet__target-img" id="planet-left-target-img" src="" alt="" />
+                </div>
+            </div>
         </div>
         <div class="side-planet side-planet--right" id="planet-right" aria-hidden="true">
             <img id="planet-right-img" src="images/TOI-1452-B.png" alt="" />
+            <div class="side-planet__target" id="planet-right-target" aria-hidden="true">
+                <div class="side-planet__target-inner">
+                    <img class="side-planet__target-img" id="planet-right-target-img" src="" alt="" />
+                </div>
+            </div>
         </div>
 
         <!-- ========== 标题（星球正上方）· 外层定位 + 内层动画 ========== -->
