@@ -16,6 +16,67 @@
     --l2-accent-rgb:    0, 200, 122;    /* #007b52 同色相提亮 → #00c87a */
     --l2-section-bg:    #000;
     --l2-planet-filter: saturate(0.45) blur(1px);
+
+    /* ============================================================
+       Level 2 quick tuning controls (all-in-one)
+       Edit only these vars to move/resize backgrounds, middle images,
+       and text blocks without searching through the whole stylesheet.
+       ============================================================ */
+
+    /* Screen background controls */
+    --l2-s1-bg-size: cover;
+    --l2-s1-bg-position: center;
+    --l2-s1-bg-offset-x: 0px;
+    --l2-s1-bg-offset-y: -5%;
+
+    --l2-s2-bg-size: cover;
+    --l2-s2-bg-position: center;
+    --l2-s2-bg-offset-x: 0px;
+    --l2-s2-bg-offset-y: -8%;
+
+    --l2-s3-bg-size: cover;
+    --l2-s3-bg-position: center;
+    --l2-s3-bg-offset-x: 0px;
+    --l2-s3-bg-offset-y: 0px;
+
+    --l2-s4-bg-size: cover;
+    --l2-s4-bg-position: center;
+    --l2-s4-bg-offset-x: 0px;
+    --l2-s4-bg-offset-y: 0px;
+
+    /* Middle image controls (screen 2 / screen 3) */
+    --l2-s2-img-width: 23vw;
+    --l2-s2-img-height: 33vh;
+    --l2-s2-img-offset-x: 0px;
+    --l2-s2-img-offset-y: 0%;
+
+    --l2-s3-img-width: 50vw;
+    --l2-s3-img-height: 45vh;
+    --l2-s3-img-offset-x: 0px;
+    --l2-s3-img-offset-y: 5%;
+
+    /* Text controls (fully decoupled from middle image movement) */
+    --l2-s1-chapter-offset-x: 0px;
+    --l2-s1-chapter-offset-y: 0px;
+    --l2-s1-title-offset-x: 0px;
+    --l2-s1-title-offset-y: 0px;
+    --l2-s1-body-offset-x: 0px;
+    --l2-s1-body-offset-y: 0px;
+
+    --l2-s2-chapter-offset-x: 0px;
+    --l2-s2-chapter-offset-y: -10%;
+    --l2-s2-body-offset-x: 0px;
+    --l2-s2-body-offset-y: 130%;
+
+    --l2-s3-chapter-offset-x: 0px;
+    --l2-s3-chapter-offset-y: 0px;
+    --l2-s3-body-offset-x: 0px;
+    --l2-s3-body-offset-y: 55%;
+
+    --l2-s4-chapter-offset-x: 0px;
+    --l2-s4-chapter-offset-y: 0px;
+    --l2-s4-body-offset-x: 0px;
+    --l2-s4-body-offset-y: 0px;
 }
 
 /* Kepler-452 b · 翡翠色的交响森林 */
@@ -161,6 +222,8 @@
     gap: 1.2rem;
     width: 90%;
     max-width: 60rem;
+    position: relative;
+    z-index: 1;
 }
 
 .l2-planet-id-label {
@@ -176,6 +239,7 @@
 .l2-float-heading {
     overflow: visible !important;
     color: #fff !important;
+    transform: translate(var(--l2-s1-title-offset-x), var(--l2-s1-title-offset-y));
 }
 .l2-float-text {
     font-family: var(--font-black, "Arial Black", sans-serif) !important;
@@ -193,6 +257,7 @@
     align-self: stretch;
     text-align: left;
     animation: l2-s1-body-in 1.1s 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+    transform: translate(var(--l2-s1-body-offset-x), var(--l2-s1-body-offset-y));
 }
 
 @keyframes l2-s1-body-in {
@@ -212,6 +277,7 @@
 .l2-s1-ch-label {
     align-self: flex-start;
     margin: 0;
+    transform: translate(var(--l2-s1-chapter-offset-x), var(--l2-s1-chapter-offset-y));
 }
 
 .l2-s1-hint {
@@ -228,8 +294,7 @@
 }
 
 /* ================================================================
-   SCREENS 1 & 4 · Per-section full-bleed background (GSAP parallax)
-   SCREENS 2 + 3 · Shared seamless BG wrapper (natural scroll)
+   SCREENS 1/2/3/4 · Per-section full-bleed background
    ================================================================ */
 
 /*
@@ -243,8 +308,25 @@
     z-index: 0;
     pointer-events: none;
 }
+/* 第一屏 / 第四屏 · 黑色渐变遮罩（与 .l2-s23-wrap::before 同款）
+   调渐变强度：改下面三处 rgba 的 alpha（0~1），越大越暗 */
+.l2-bg-layer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0) 0%,
+        rgba(0, 0, 0, 0.0) 40%,
+        rgba(0, 0, 0, 0.0) 50%,
+        rgba(0, 0, 0, 0.0) 60%,
+        rgba(0, 0, 0, 0) 100%
+    );
+    pointer-events: none;
+    z-index: 1;
+}
 .l2-bg-layer--dimmer .l2-planet-bg {
-    opacity: 0.18;
+    opacity: 1;
 }
 .l2-planet-bg {
     width: 100%;
@@ -252,49 +334,38 @@
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    opacity: 0.22;
+    opacity: 1;
     filter: var(--l2-planet-filter, saturate(0.45) blur(1px));
 }
 /* Slightly more vivid for the PAGE images (real illustrated art) */
 .l2-planet-bg--vivid {
-    opacity: 0.32;
+    opacity: 1;
     filter: saturate(1.1) blur(0.5px);
 }
 
-/*
- * .l2-s23-wrap — shared wrapper for Screens 2 and 3.
- * BG.png is placed here ONCE and spans the full combined height of
- * both child sections so the user sees a single uninterrupted starfield
- * as they scroll from Chapter II to Chapter III.
- */
-.l2-s23-wrap {
-    position: relative;
-    background-size: cover;
-    background-position: center top;
-    background-repeat: no-repeat;
-    background-attachment: scroll;
+/* Per-screen background positioning knobs */
+.l2-s1 .l2-planet-bg {
+    background-size: var(--l2-s1-bg-size);
+    background-position: var(--l2-s1-bg-position);
+    transform: translate(var(--l2-s1-bg-offset-x), var(--l2-s1-bg-offset-y));
 }
-/* Sections inside the shared wrapper must be transparent */
-.l2-s23-wrap .l2-section {
-    background: transparent;
+
+.l2-s2 .l2-planet-bg {
+    background-size: var(--l2-s2-bg-size);
+    background-position: var(--l2-s2-bg-position);
+    transform: translate(var(--l2-s2-bg-offset-x), var(--l2-s2-bg-offset-y));
 }
-/* Subtle dark gradient overlay so text remains readable */
-.l2-s23-wrap::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-        to bottom,
-        rgba(0, 0, 0, 0.42) 0%,
-        rgba(0, 0, 0, 0.28) 50%,
-        rgba(0, 0, 0, 0.52) 100%
-    );
-    pointer-events: none;
-    z-index: 0;
+
+.l2-s3 .l2-planet-bg {
+    background-size: var(--l2-s3-bg-size);
+    background-position: var(--l2-s3-bg-position);
+    transform: translate(var(--l2-s3-bg-offset-x), var(--l2-s3-bg-offset-y));
 }
-/* Content columns inside the wrapper must sit above the overlay */
-.l2-s23-wrap .l2-content-col {
-    z-index: 1;
+
+.l2-s4 .l2-planet-bg {
+    background-size: var(--l2-s4-bg-size);
+    background-position: var(--l2-s4-bg-position);
+    transform: translate(var(--l2-s4-bg-offset-x), var(--l2-s4-bg-offset-y));
 }
 
 .l2-s2,
@@ -314,6 +385,30 @@
     max-width: 64rem;
     padding: 3rem 1.5rem 2.5rem;
     margin: 0 auto;
+}
+
+.l2-s2-ch-label {
+    transform: translate(var(--l2-s2-chapter-offset-x), var(--l2-s2-chapter-offset-y));
+}
+
+.l2-s3-ch-label {
+    transform: translate(var(--l2-s3-chapter-offset-x), var(--l2-s3-chapter-offset-y));
+}
+
+.l2-s4-ch-label {
+    transform: translate(var(--l2-s4-chapter-offset-x), var(--l2-s4-chapter-offset-y));
+}
+
+.l2-s2-body-wrap {
+    transform: translate(var(--l2-s2-body-offset-x), var(--l2-s2-body-offset-y));
+}
+
+.l2-s3-body-wrap {
+    transform: translate(var(--l2-s3-body-offset-x), var(--l2-s3-body-offset-y));
+}
+
+.l2-s4-body-wrap {
+    transform: translate(var(--l2-s4-body-offset-x), var(--l2-s4-body-offset-y));
 }
 
 .l2-chapter-label {
@@ -348,14 +443,28 @@
  */
 .l2-content-img {
     display: block;
-    width: 56vw;
+    width: 35vw;
     max-width: 100%;
-    height: 60vh;
+    height: 45vh;
     object-fit: contain;
     filter:
         drop-shadow(0 4px 12px rgba(0, 0, 0, 0.25))
         drop-shadow(0 12px 40px rgba(0, 0, 0, 0.20))
         drop-shadow(0 0  28px rgba(var(--l2-accent-rgb), 0.05));
+}
+
+/* Screen-specific tuning knobs for middle illustrations.
+   You can independently adjust size/position per screen here. */
+.l2-content-img--s2 {
+    width: var(--l2-s2-img-width);
+    height: var(--l2-s2-img-height);
+    transform: translate(var(--l2-s2-img-offset-x), var(--l2-s2-img-offset-y));
+}
+
+.l2-content-img--s3 {
+    width: var(--l2-s3-img-width);
+    height: var(--l2-s3-img-height);
+    transform: translate(var(--l2-s3-img-offset-x), var(--l2-s3-img-offset-y));
 }
 
 /*
@@ -404,6 +513,8 @@
     width: 90%;
     max-width: 52rem;
     padding: 5rem 1.5rem 3rem;
+    position: relative;
+    z-index: 1;
 }
 
 /* Chapter IV label in closing screen */

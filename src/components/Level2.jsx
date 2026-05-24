@@ -187,20 +187,17 @@ export default function Level2() {
         </FadeContent>
       </section>
 
-      {/* ── SCREENS 2 + 3 · Shared seamless BG wrapper ───────────────────────
-       *
-       *  BG.png is set ONCE on the outer .l2-s23-wrap and spans the full
-       *  combined height of both sections — user scrolls through a single
-       *  continuous starfield with no seam or repeat.
-       *
-       *  Screen 2: PAGE2.png ecology illustration (object-fit:contain)
-       *  Screen 3: PAGE3.png crisis  illustration  (object-fit:contain)
-       */}
-      <div className="l2-s23-wrap" style={{ backgroundImage: `url(${level2Images.bg})` }}>
+      {/* ── SCREEN 2 · BG.png + PAGE2.png ───────────────────────────────────── */}
+      <section className="l2-section l2-s2" key={`s2-${key}`}>
+        <div className="l2-bg-layer" aria-hidden="true">
+          <div
+            className="l2-planet-bg l2-planet-bg--vivid"
+            style={{ backgroundImage: `url(${level2Images.bg})` }}
+          />
+        </div>
 
-        <section className="l2-section l2-s2" key={`s2-${key}`}>
-          <div className="l2-content-col">
-            <p className="l2-chapter-label">
+        <div className="l2-content-col">
+            <p className="l2-chapter-label l2-s2-ch-label">
               CHAPTER&nbsp;Ⅱ&nbsp;·&nbsp;{narrative.ch2Label}
             </p>
 
@@ -217,7 +214,7 @@ export default function Level2() {
               className="l2-image-wrap"
             >
               <img
-                className="l2-content-img"
+                className="l2-content-img l2-content-img--s2"
                 src={level2Images.page2}
                 alt={`${planet.id} — Chapter II`}
               />
@@ -225,6 +222,7 @@ export default function Level2() {
 
             <ScrollReveal
               scrollContainerRef={wrapRef}
+              containerClassName="l2-s2-body-wrap"
               enableBlur
               baseOpacity={0}
               baseRotation={3}
@@ -233,16 +231,24 @@ export default function Level2() {
               rotationEnd="top 80%"
               wordAnimationStart="top bottom+=8%"
               wordAnimationEnd="top 80%"
-              textClassName="l2-reveal-text"
+              textClassName="l2-reveal-text l2-s2-body-text"
             >
               {narrative.ch2}
             </ScrollReveal>
           </div>
-        </section>
+      </section>
 
-        <section className="l2-section l2-s3" key={`s3-${key}`}>
-          <div className="l2-content-col">
-            <p className="l2-chapter-label">
+      {/* ── SCREEN 3 · BG1.png + PAGE3.png ──────────────────────────────────── */}
+      <section className="l2-section l2-s3" key={`s3-${key}`}>
+        <div className="l2-bg-layer" aria-hidden="true">
+          <div
+            className="l2-planet-bg l2-planet-bg--vivid"
+            style={{ backgroundImage: `url(${level2Images.bg1})` }}
+          />
+        </div>
+
+        <div className="l2-content-col">
+            <p className="l2-chapter-label l2-s3-ch-label">
               CHAPTER&nbsp;Ⅲ&nbsp;·&nbsp;{narrative.ch3Label}
             </p>
 
@@ -259,7 +265,7 @@ export default function Level2() {
               className="l2-image-wrap"
             >
               <img
-                className="l2-content-img"
+                className="l2-content-img l2-content-img--s3"
                 src={level2Images.page3}
                 alt={`${planet.id} — Chapter III`}
               />
@@ -267,6 +273,7 @@ export default function Level2() {
 
             <ScrollReveal
               scrollContainerRef={wrapRef}
+              containerClassName="l2-s3-body-wrap"
               enableBlur
               baseOpacity={0}
               baseRotation={-3}
@@ -275,14 +282,12 @@ export default function Level2() {
               rotationEnd="top 80%"
               wordAnimationStart="top bottom+=8%"
               wordAnimationEnd="top 80%"
-              textClassName="l2-reveal-text"
+              textClassName="l2-reveal-text l2-s3-body-text"
             >
               {narrative.ch3}
             </ScrollReveal>
           </div>
-        </section>
-
-      </div>{/* /l2-s23-wrap */}
+      </section>
 
       {/* ── SCREEN 4 · Chapter IV · Closing narrative + confirm ───────────────
        *
@@ -302,6 +307,7 @@ export default function Level2() {
 
           <ScrollReveal
             scrollContainerRef={wrapRef}
+            containerClassName="l2-s4-body-wrap"
             enableBlur
             baseOpacity={0}
             baseRotation={2}
@@ -310,7 +316,7 @@ export default function Level2() {
             rotationEnd="top 70%"
             wordAnimationStart="top bottom+=8%"
             wordAnimationEnd="top 70%"
-            textClassName="l2-confirm-text"
+            textClassName="l2-confirm-text l2-s4-body-text"
           >
             {narrative.ch4}
           </ScrollReveal>

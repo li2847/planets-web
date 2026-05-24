@@ -30,7 +30,6 @@ const HOMESICK_CH4 = [
     '越奔赴远方，越懂故土无可替代，地球只有一个，值得我们好好珍惜守护',
 ];
 
-/* 三颗行星共用的章节标签（取自 TOI 用户提供的命名，三颗都吻合"毁灭→消亡→乡愁"主题） */
 const L3_CHAPTER_LABELS = {
     ch1Label: '死亡',
     ch2Label: '腐败',
@@ -53,6 +52,7 @@ export const PLANETS = [
             page3: "images/level2/KEPLER-452B/PAGE3.png",
             page4: "images/level2/KEPLER-452B/PAGE4.png",
             bg:    "images/level2/KEPLER-452B/BG.png",
+            bg1:   "images/level2/KEPLER-452B/BG2.png",
         },
         planetTheme: "kepler",
         rippleColor: "rgba(37,244,238,0.75)",
@@ -105,6 +105,7 @@ export const PLANETS = [
             page3: "images/level2/TOI-1452B/PAGE3.png",
             page4: "images/level2/TOI-1452B/PAGE4.png",
             bg:    "images/level2/TOI-1452B/BG.png",
+            bg1:   "images/level2/TOI-1452B/BG2.png",
         },
         planetTheme: "toi",
         rippleColor: "rgba(100,190,255,0.75)",
@@ -157,6 +158,7 @@ export const PLANETS = [
             page3: "images/level2/PROXIMA-CENTAURI-B/PAGE3.png",
             page4: "images/level2/PROXIMA-CENTAURI-B/PAGE4.png",
             bg:    "images/level2/PROXIMA-CENTAURI-B/BG.png",
+            bg1:   "images/level2/PROXIMA-CENTAURI-B/BG2.png",
         },
         planetTheme: "proxima",
         rippleColor: "rgba(255,110,60,0.75)",
