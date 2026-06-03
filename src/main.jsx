@@ -43,6 +43,7 @@ import './components/level2.css';
 import { bootLevel1 } from './pages/LevelOne';
 import LevelTwo       from './pages/LevelTwo';
 import { bootLevel3 } from './level3';
+import { PLANETS } from './data/planets';
 
 // Galaxy starfield background for Level 1
 import Galaxy from './components/Galaxy/Galaxy';
@@ -100,36 +101,57 @@ function mountLevel3OrbitImages() {
     return;
   }
 
-  // 4 placeholder images — picsum random/grayscale; replace with real assets
-  // when the scene's narrative content is finalized.
-  const orbitImages = [
-    'https://picsum.photos/200/200?grayscale&random=1',
-    'https://picsum.photos/200/200?grayscale&random=2',
-    'https://picsum.photos/200/200?grayscale&random=3',
-    'https://picsum.photos/200/200?grayscale&random=4',
-  ];
+  const root = ReactDOM.createRoot(host);
 
-  ReactDOM.createRoot(host).render(
-    <React.StrictMode>
-      <OrbitImages
-        images={orbitImages}
-        shape="ellipse"
-        radiusX={650}                             /* 横向再放宽，让轨道明显环绕长方形主元素 */
-        radiusY={150}
-        duration={50}
-        itemSize={220}                            /* 放大轨道占位图，与放大后的中心主元素保持比例 */
-        rotation={0}
-        responsive={true}
-        showPath={true}
-        pathColor="rgba(255,255,255,0.22)"
-        pathWidth={1.5}
-        depth={true}                              /* fake-3D 遮挡：下半圆轨道项盖在主元素上，上半圆被主元素挡住 */
-        centerContent={
-          <div className="focus-element-placeholder">主元素占位</div>
-        }
-      />
-    </React.StrictMode>
-  );
+  const renderOrbitForPlanet = (planetIndex = 0) => {
+    const planet = PLANETS[planetIndex] ?? PLANETS[0];
+    const imgs = planet.level3Images ?? {};
+
+    const orbitImages = [
+      imgs.page2_item2,
+      imgs.page2_item3,
+      imgs.page2_item4,
+      imgs.page2_item5,
+    ].filter(Boolean);
+
+    root.render(
+      <React.StrictMode>
+        <OrbitImages
+          images={orbitImages}
+          shape="ellipse"
+          radiusX={650}
+          radiusY={150}
+          duration={50}
+          itemSize={220}
+          rotation={0}
+          responsive={true}
+          showPath={true}
+          pathColor="rgba(255,255,255,0.22)"
+          pathWidth={1.5}
+          depth={true}
+          centerContent={
+            <div className="focus-element-placeholder">
+              {imgs.page2_item1 ? (
+                <img
+                  className="focus-element-placeholder__img"
+                  src={imgs.page2_item1}
+                  alt={`${planet.id} Stage2 item1`}
+                />
+              ) : null}
+            </div>
+          }
+        />
+      </React.StrictMode>
+    );
+  };
+
+  const handleContentChange = (event) => {
+    const idx = event?.detail?.planetIndex ?? 0;
+    renderOrbitForPlanet(idx);
+  };
+
+  window.addEventListener('l3-content-change', handleContentChange);
+  renderOrbitForPlanet(0);
 }
 
 /**

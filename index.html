@@ -151,20 +151,24 @@
             -->
             <div class="stage-1-wrapper">
                 <p class="l3-corner-chapter">CHAPTER I · 死亡</p>
-                <!-- 主元素：屏幕正中心，初始尺寸 400 -->
-                <div class="elem-main-placeholder" style="width: 400px; height: 400px; background: rgba(255,255,255,0.2); border: 2px dashed #fff; display: flex; align-items: center; justify-content: center; color: #fff; font-family: var(--font-display); letter-spacing: 0.12em;">
-                    中间主元素
+
+                <!-- 背景图层 · PAGE1 全屏铺底 -->
+                <div class="l3-bg-layer" aria-hidden="true">
+                    <img class="l3-page-bg" id="l3-s1-bg" src="" alt="" />
+                    <div class="l3-bg-shade l3-bg-shade--center"></div>
                 </div>
 
-                <!-- 侧栏：主元素右侧；起始 x:100、opacity:0；滚动时滑入并淡入 -->
-                <div class="elem-side-placeholder" style="width: 260px; height: 360px; background: rgba(var(--l3-accent-rgb), 0.2); border: 2px dashed rgba(var(--l3-accent-rgb), 0.9); display: flex; align-items: center; justify-content: center; color: rgba(var(--l3-accent-rgb), 0.9); font-family: var(--font-display); letter-spacing: 0.12em; opacity: 0;">
-                    侧边占位
+                <!-- 中央主元素 · item1（GSAP 控制 scale / x） -->
+                <div class="elem-main-placeholder">
+                    <img class="l3-center-item" id="l3-s1-item1" src="" alt="" />
                 </div>
 
-                <!-- 文案：屏幕中下偏上（按用户要求"再靠上一点"，bottom 在 style.css 调到 22%）
-                     按用户要求第一屏不放标题，仅留正文一段；正文由 level3.js 在 show()
-                     里按 PLANETS[idx].narrativeL3.ch1 注入。
-                     字号比初版稍大（0.85→1.0 起步）让段落更"主体感"。-->
+                <!-- 侧边元素 · item2（GSAP 控制 x / opacity / scale） -->
+                <div class="elem-side-placeholder">
+                    <img class="l3-side-item" id="l3-s1-item2" src="" alt="" />
+                </div>
+
+                <!-- 文案（React Level3TextReveals 挂载到此容器） -->
                 <div class="elem-caption-placeholder" style="max-width: 1080px; text-align: center; color: rgba(234, 246, 255, 0.88); font-family: var(--font-mono); line-height: 1.85; opacity: 0;"></div>
             </div>
 
@@ -175,13 +179,19 @@
             -->
             <div class="l3-scene-2" aria-hidden="true">
                 <p class="l3-corner-chapter">CHAPTER II · 腐败</p>
-                <!-- 轨道区：OrbitImages 挂载点，主元素通过 centerContent 绝对居中 -->
+
+                <!-- 背景图层 · PAGE2 全屏铺底 -->
+                <div class="l3-bg-layer" aria-hidden="true">
+                    <img class="l3-page-bg" id="l3-s2-bg" src="" alt="" />
+                    <div class="l3-bg-shade l3-bg-shade--center"></div>
+                </div>
+
+                <!-- 轨道区：恢复旧版环绕效果，图片由 main.jsx 根据当前 planetIndex 动态注入 -->
                 <div class="l3-orbit-area">
                     <div id="l3-orbit-mount"></div>
                 </div>
 
-                <!-- 文案区（轨道正下方，不遮挡旋转效果）：只保留正文，
-                     由 Level3TextReveals React island 根据 planetIndex 渲染。 -->
+                <!-- 文案区（React Level3TextReveals 挂载） -->
                 <div class="focus-text-area"></div>
             </div>
 
@@ -195,7 +205,7 @@
                  的 hand-off 区间被滑入。 -->
             <div class="l3-scene-3" aria-hidden="true">
                 <div class="l3-bg-layer" aria-hidden="true">
-                    <div class="l3-planet-bg"></div>
+                    <img class="l3-page-bg l3-page-bg--decay" id="l3-s3-bg" src="" alt="" />
                     <div class="l3-bg-shade l3-bg-shade--center"></div>
                 </div>
 
@@ -205,7 +215,7 @@
 
             <div class="l3-scene-4" aria-hidden="true">
                 <div class="l3-bg-layer" aria-hidden="true">
-                    <div class="l3-planet-bg l3-planet-bg--dimmer"></div>
+                    <img class="l3-page-bg l3-page-bg--dimmer" id="l3-s4-bg" src="" alt="" />
                     <div class="l3-bg-shade l3-bg-shade--center"></div>
                 </div>
 

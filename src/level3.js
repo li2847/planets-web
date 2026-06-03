@@ -100,13 +100,39 @@ export function bootLevel3() {
         return null;
     }
 
-    /* ── per-planet 背景注入 ──────────────────────────────────────────────
-     * 文本内容现在由 React island <Level3TextReveals /> 渲染，并使用
-     * React Bits <ScrollReveal /> 管理交互；这里仅负责写入背景图变量。 */
+    /* ── per-planet 图片注入 ──────────────────────────────────────────────
+     * 按 level3Images 数据动态设置每一屏的 背景 / 中央主元素 / 辅助元素 src。
+     * 文本内容由 React island <Level3TextReveals /> 渲染。 */
     function applyPlanetContent(planet) {
-        if (planet.image) {
-            lv3.style.setProperty('--l3-planet-image', `url(${planet.image})`);
-        }
+        const imgs = planet.level3Images;
+        if (!imgs) return;
+
+        const setImg = (id, src) => {
+            const el = lv3.querySelector(`#${id}`);
+            if (el) el.src = src || '';
+        };
+
+        // Scene 1 — PAGE1 bg + item1 (center) + item2 (side)
+        setImg('l3-s1-bg',    imgs.page1);
+        setImg('l3-s1-item1', imgs.page1_item1);
+        setImg('l3-s1-item2', imgs.page1_item2);
+
+        // Scene 2 — PAGE2 bg + item1/item2~5 交给 OrbitImages（main.jsx）动态渲染
+        setImg('l3-s2-bg',    imgs.page2);
+
+        // Scene 3 — PAGE3 bg
+        setImg('l3-s3-bg', imgs.page3);
+
+        // Scene 4 — PAGE4 bg
+        setImg('l3-s4-bg', imgs.page4);
+
+        console.debug('[level3] background images mounted', {
+            planetId: planet.id,
+            s1: imgs.page1,
+            s2: imgs.page2,
+            s3: imgs.page3,
+            s4: imgs.page4,
+        });
     }
 
     /* ── 懒初始化：ScrollTrigger 只在第一次进入 Level 3 时创建一次 ─────── */

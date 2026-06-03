@@ -79,25 +79,197 @@
     --l2-s4-body-offset-y: 0px;
 }
 
+/* ================================================================
+   Per-planet overrides
+   改某颗行星的背景/图片/文字位置，只在这里改对应行星的变量，
+   三颗行星完全独立，互不干扰。
+   不写的变量自动继承上方 .l2-wrap 的默认值。
+   ================================================================ */
+
 /* Kepler-452 b · 翡翠色的交响森林 */
 .l2-wrap[data-planet="kepler"] {
-    --l2-accent-rgb:    0, 200, 122;    /* #007b52 同色相提亮 → #00c87a */
+    --l2-accent-rgb:    205,237,219;
     --l2-section-bg:    #030c05;
     --l2-planet-filter: saturate(1.8) hue-rotate(80deg) blur(1px);
+
+    /* —— 背景位置 —— */
+    --l2-s1-bg-size: cover;
+    --l2-s1-bg-position: center;
+    --l2-s1-bg-offset-x: 0px;
+    --l2-s1-bg-offset-y: 0px;
+
+    --l2-s2-bg-size: cover;
+    --l2-s2-bg-position: center;
+    --l2-s2-bg-offset-x: 0px;
+    --l2-s2-bg-offset-y: -5.5%;
+
+    --l2-s3-bg-size: cover;
+    --l2-s3-bg-position: center;
+    --l2-s3-bg-offset-x: 0px;
+    --l2-s3-bg-offset-y: 0px;
+
+    --l2-s4-bg-size: cover;
+    --l2-s4-bg-position: center;
+    --l2-s4-bg-offset-x: 0%;
+    --l2-s4-bg-offset-y: 9%;
+
+    /* —— 中间图片 —— */
+    --l2-s2-img-width: 23vw;
+    --l2-s2-img-height: 33vh;
+    --l2-s2-img-offset-x: -8%;
+    --l2-s2-img-offset-y: 20%;
+
+    --l2-s3-img-width: 50vw;
+    --l2-s3-img-height: 45vh;
+    --l2-s3-img-offset-x: 0px;
+    --l2-s3-img-offset-y: 13%;
+
+    /* —— 文字 —— */
+    --l2-s1-chapter-offset-x: 0px;
+    --l2-s1-chapter-offset-y: 0px;
+    --l2-s1-title-offset-x: 0px;
+    --l2-s1-title-offset-y: 0px;
+    --l2-s1-body-offset-x: 0px;
+    --l2-s1-body-offset-y: 0px;
+
+    --l2-s2-chapter-offset-x: 0px;
+    --l2-s2-chapter-offset-y: -205%;
+    --l2-s2-body-offset-x: 0px;
+    --l2-s2-body-offset-y: 280%;
+
+    --l2-s3-chapter-offset-x: 0px;
+    --l2-s3-chapter-offset-y: 265%;
+    --l2-s3-body-offset-x: 0px;
+    --l2-s3-body-offset-y: 140%;
+
+    --l2-s4-chapter-offset-x: 0px;
+    --l2-s4-chapter-offset-y: 0px;
+    --l2-s4-body-offset-x: 0px;
+    --l2-s4-body-offset-y: 0px;
 }
 
 /* TOI-1452 b · 深蓝色的极光之海 */
 .l2-wrap[data-planet="toi"] {
-    --l2-accent-rgb:    99, 180, 255;   /* #63b4ff 保持不变 */
+    --l2-accent-rgb:    255, 251, 248;
     --l2-section-bg:    #01060f;
     --l2-planet-filter: saturate(1.5) hue-rotate(195deg) blur(1px);
+
+    /* —— 背景位置 —— */
+    --l2-s1-bg-size: cover;
+    --l2-s1-bg-position: center;
+    --l2-s1-bg-offset-x: 0px;
+    --l2-s1-bg-offset-y: 0px;
+
+    --l2-s2-bg-size: cover;
+    --l2-s2-bg-position: center;
+    --l2-s2-bg-offset-x: 0%;
+    --l2-s2-bg-offset-y: -6%;
+
+    --l2-s3-bg-size: cover;
+    --l2-s3-bg-position: center;
+    --l2-s3-bg-offset-x: 0px;
+    --l2-s3-bg-offset-y: 0px;
+
+    --l2-s4-bg-size: cover;
+    --l2-s4-bg-position: center;
+    --l2-s4-bg-offset-x: 0px;
+    --l2-s4-bg-offset-y: 0px;
+
+    /* —— 中间图片 —— */
+    --l2-s2-img-width: 25vw;
+    --l2-s2-img-height: 25vh;
+    --l2-s2-img-offset-x: 0px;
+    --l2-s2-img-offset-y: 25%;
+
+    --l2-s3-img-width: 50vw;
+    --l2-s3-img-height: 45vh;
+    --l2-s3-img-offset-x: 0px;
+    --l2-s3-img-offset-y: 8%;
+
+    /* —— 文字 —— */
+    --l2-s1-chapter-offset-x: 0px;
+    --l2-s1-chapter-offset-y: 0px;
+    --l2-s1-title-offset-x: 0px;
+    --l2-s1-title-offset-y: 0px;
+    --l2-s1-body-offset-x: 0px;
+    --l2-s1-body-offset-y: 0px;
+
+    --l2-s2-chapter-offset-x: 0px;
+    --l2-s2-chapter-offset-y: -420%;
+    --l2-s2-body-offset-x: 0px;
+    --l2-s2-body-offset-y: 380%;
+
+    --l2-s3-chapter-offset-x: 0px;
+    --l2-s3-chapter-offset-y: 140%;
+    --l2-s3-body-offset-x: 0px;
+    --l2-s3-body-offset-y: 140%;
+
+    --l2-s4-chapter-offset-x: 0px;
+    --l2-s4-chapter-offset-y: 0px;
+    --l2-s4-body-offset-x: 0px;
+    --l2-s4-body-offset-y: 0px;
 }
 
-/* Proxima Centauri b · 琥珀色的永恒午后 */
+/* Proxima Centauri b · 赤砂色的永恒午后 */
 .l2-wrap[data-planet="proxima"] {
-    --l2-accent-rgb:    232, 99, 74;    /* #d55539 同色相提亮 → #e8634a */
+    --l2-accent-rgb:    253, 232, 218;
     --l2-section-bg:    #0e0800;
     --l2-planet-filter: saturate(1.3) sepia(0.25) blur(1px);
+
+    /* —— 背景位置 —— */
+    --l2-s1-bg-size: cover;
+    --l2-s1-bg-position: center;
+    --l2-s1-bg-offset-x: 0px;
+    --l2-s1-bg-offset-y: 3%;
+
+    --l2-s2-bg-size: cover;
+    --l2-s2-bg-position: center;
+    --l2-s2-bg-offset-x: 0px;
+    --l2-s2-bg-offset-y: -5.4%;
+
+    --l2-s3-bg-size: cover;
+    --l2-s3-bg-position: center;
+    --l2-s3-bg-offset-x: 0px;
+    --l2-s3-bg-offset-y: 0px;
+
+    --l2-s4-bg-size: cover;
+    --l2-s4-bg-position: center;
+    --l2-s4-bg-offset-x: 0px;
+    --l2-s4-bg-offset-y: 0px;
+
+    /* —— 中间图片 —— */
+    --l2-s2-img-width: 23vw;
+    --l2-s2-img-height: 35vh;
+    --l2-s2-img-offset-x: 0px;
+    --l2-s2-img-offset-y: 1%;
+
+    --l2-s3-img-width: 50vw;
+    --l2-s3-img-height: 45vh;
+    --l2-s3-img-offset-x: 0px;
+    --l2-s3-img-offset-y: 13%;
+
+    /* —— 文字 —— */
+    --l2-s1-chapter-offset-x: 0px;
+    --l2-s1-chapter-offset-y: 0px;
+    --l2-s1-title-offset-x: 0px;
+    --l2-s1-title-offset-y: 0px;
+    --l2-s1-body-offset-x: 0px;
+    --l2-s1-body-offset-y: 0px;
+
+    --l2-s2-chapter-offset-x: 0px;
+    --l2-s2-chapter-offset-y: -155%;
+    --l2-s2-body-offset-x: 0px;
+    --l2-s2-body-offset-y: 260%;
+
+    --l2-s3-chapter-offset-x: 0px;
+    --l2-s3-chapter-offset-y: 250%;
+    --l2-s3-body-offset-x: 0px;
+    --l2-s3-body-offset-y: 140%;
+
+    --l2-s4-chapter-offset-x: 0px;
+    --l2-s4-chapter-offset-y: 0px;
+    --l2-s4-body-offset-x: 0px;
+    --l2-s4-body-offset-y: 0px;
 }
 
 /* ── Container visibility (hidden-attribute safe) ──────────────── */
@@ -127,16 +299,90 @@
     display: none;
 }
 
-/* ── Sections ───────────────────────────────────────────────────── */
-.l2-section {
+/* ================================================================
+   STAGE MODEL · 滚动距离容器 + sticky 舞台 + 叠加的 4 个 section
+   ----------------------------------------------------------------
+   .l2-stage-spacer  在 .l2-wrap 滚动容器内拉出 500vh 的纵向距离，
+                    仅用来给 ScrollTrigger(scrub) 提供"滑动里程"，
+                    本身没有可视内容。
+   .l2-stage        sticky 固定在 spacer 内部顶端、100vh 高，作为
+                    电影舞台。所有 section + 飞船大门叠在这里。
+   .l2-section      全部 absolute inset:0，互相完全重叠，由 GSAP
+                    控制 opacity + scale 切换。
+   ================================================================ */
+.l2-stage-spacer {
     position: relative;
     width: 100%;
-    min-height: 100vh;
+    height: 700vh;   /* 与 JS end:+600% 对齐（600vh + 100vh sticky 余量） */
+}
+
+.l2-stage {
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    background: var(--l2-section-bg, #000);
+}
+
+/* ── Sections ───────────────────────────────────────────────────── */
+.l2-section {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
     background: var(--l2-section-bg, #000);
+    transform-origin: 50% 50%;
+    will-change: transform, opacity;
+}
+
+/* 默认隐藏后三屏（GSAP 会同步 set，这里只是兜底防闪烁） */
+.l2-s2,
+.l2-s3,
+.l2-s4 {
+    opacity: 0;
+    transform: scale(0.98);
+}
+
+/* ================================================================
+   飞船大门 · LEFT 覆盖在 RIGHT 上面
+   ----------------------------------------------------------------
+   左右两扇半屏门紧贴合拢，由 GSAP 控制 xPercent: ±100 滑出。
+   pointer-events:none 让透明像素不挡住下方 UI；位置/尺寸先按
+   默认半屏铺，你之后用 background-position / width 微调即可。
+   ================================================================ */
+.l2-gate-container {
+    position: absolute;
+    inset: 0;
+    z-index: 99;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.l2-gate {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 62%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    will-change: transform;
+}
+
+.l2-gate--right {
+    right: 0;
+    z-index: 1;             /* 底层 */
+}
+
+.l2-gate--left {
+    left: 0;
+    z-index: 2;             /* 上层，盖在 RIGHT 上面 */
 }
 
 /* ================================================================
@@ -255,8 +501,8 @@
  */
 .l2-s1-body {
     align-self: stretch;
-    text-align: left;
-    animation: l2-s1-body-in 1.1s 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+    text-align: center;
+    /* animation 已移除：文字由 ScrollReveal + spacer triggerRef 接管 */
     transform: translate(var(--l2-s1-body-offset-x), var(--l2-s1-body-offset-y));
 }
 
@@ -416,7 +662,7 @@
     font-family: var(--font-display, "Orbitron", sans-serif);
     font-size: clamp(0.52rem, 0.72vw, 0.66rem);
     letter-spacing: 0.4em;
-    color: rgba(var(--l2-accent-rgb), 0.42);
+    color: rgba(var(--l2-accent-rgb), 0.95);
     text-transform: uppercase;
     margin: 0;
 }
@@ -430,27 +676,17 @@
 
 /*
  * Real illustration image — replaces the old grey placeholder.
- * 60vh tall, object-fit:contain keeps artwork aspect ratio.
- * Sections use min-height:100vh so they expand naturally to fit.
- *
- * Shadow strategy: filter:drop-shadow traces the true alpha contour
- * of the artwork so transparent/cutout edges get no shadow bleed.
- * Three layered drop-shadows build depth:
- *   1. tight dark base    — grounds the subject
- *   2. wide diffuse dark  — gives atmospheric depth
- *   3. accent glow        — sci-fi atmosphere tint
- * border-radius and box-shadow are intentionally removed.
+ * 抠图轮廓贴边阴影：统一用 filter: drop-shadow，沿真实 alpha 边缘
+ * 投影；彻底删除 box-shadow（box-shadow 会沿矩形外框走，看起来很假）。
  */
 .l2-content-img {
     display: block;
-    width: 35vw;
+    width: 60vh;
     max-width: 100%;
-    height: 45vh;
+    height: 60vh;
     object-fit: contain;
-    filter:
-        drop-shadow(0 4px 12px rgba(0, 0, 0, 0.25))
-        drop-shadow(0 12px 40px rgba(0, 0, 0, 0.20))
-        drop-shadow(0 0  28px rgba(var(--l2-accent-rgb), 0.05));
+    box-shadow: none;
+    filter: drop-shadow(0px 10px 20px rgba(0, 0, 0, 0.65));
 }
 
 /* Screen-specific tuning knobs for middle illustrations.
@@ -492,6 +728,7 @@
     font-weight: 400 !important;
     color: rgba(234, 246, 255, 0.82) !important;
     line-height: 1.95 !important;
+    text-align: center !important;
 }
 
 /* ================================================================

@@ -457,6 +457,15 @@ export function bootLevel1() {
         lv2.setAttribute("aria-hidden", "false");
         gsap.set(lv2, { opacity: 0 });
 
+        // Notify React Level 2 component NOW — while lv2 is still opacity:0.
+        // This gives React a full ~320ms (the fade-in delay) to re-render the
+        // correct planet's gates and nav before anything becomes visible.
+        // Previously this was in onComplete, which caused the wrong planet's
+        // doors (and nav active state) to flash during the entire fade-in.
+        window.dispatchEvent(
+            new CustomEvent("l2-enter", { detail: { planetIndex: state.index } })
+        );
+
         const tl = gsap.timeline({
             defaults: { ease: "power2.inOut" },
             onComplete: () => {
@@ -470,16 +479,9 @@ export function bootLevel1() {
                 planetStage.style.zIndex       = "5";
                 planetStage.style.pointerEvents = "none";
                 startPlanetCornerBreathing();
-                // #level-2 is overflow:hidden; the inner React scroll container
-                // (#l2-snap-container) handles the scroll. Reset it here as well
-                // as in the Level2.jsx l2-enter handler (belt-and-suspenders).
+                // Belt-and-suspenders scroll reset (Level2.jsx also resets on key change).
                 const innerScroll = document.getElementById("l2-snap-container");
                 if (innerScroll) innerScroll.scrollTop = 0;
-
-                // Notify React Level 2 component — triggers planet/key state update
-                window.dispatchEvent(
-                    new CustomEvent("l2-enter", { detail: { planetIndex: state.index } })
-                );
             },
         });
 
